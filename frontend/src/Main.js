@@ -13,13 +13,12 @@ class Home extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshList();
+    this.refreshList()
   }
 
-  refreshList = () => {
-    axios.get("/api/sites")
-    .then((res) => this.setState({ siteList: res.data }))
-    .catch((err) => console.log(err))
+  refreshList = async () => {
+    const response = await axios.get("/api/sites/0/get_all");
+    this.setState({ siteList: response.data })
   }
 
   getTableInfo = (table) => {
@@ -27,23 +26,26 @@ class Home extends React.Component {
     if (tableInfo.length < 1) {
       return [[],[]];
     }
-    console.log(tableInfo)
     const toReturn = [[],[]];
     switch (table) {
       case "Status":
         toReturn[0] = ['Name', "Site", "Status", "Date"];
         toReturn[1] = [];
         tableInfo.forEach(function(info) {
-          // alert(info.status)
-          const status = info.status ? "Active" : "Down";
-          toReturn[1].push([info.id, info.siteName, info.siteLink, status, "Now"]);
+          var status = "Down"
+          var bgColor = "bg-danger"
+          if (info.siteIsUp) {
+            status = "Running"
+            bgColor = "bg-success"
+          }
+          toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [status, bgColor], ["Now"]]);
         });
         break;
       case "SSL Certificates":
           toReturn[0] = ['Name', "Site", "Expires On"];
           toReturn[1] = [];
           tableInfo.forEach(function(info) {
-            toReturn[1].push([info.id, info.siteName, info.siteLink, info.sslCertificate]);
+            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [info.sslCertificate]]);
           });
           break;
 
@@ -51,7 +53,7 @@ class Home extends React.Component {
           toReturn[0] = ['Name', "Site", "Notification"];
           toReturn[1] = [];
           tableInfo.forEach(function(info) {
-            toReturn[1].push([info.id, info.siteName, info.siteLink, "ALERT"]);
+            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], ["ALERT"]]);
           });
           break;
       default:
@@ -65,8 +67,6 @@ class Home extends React.Component {
     const tableInfo = this.getTableInfo(tableOption)
     const headers = tableInfo[0]
     const rows = tableInfo[1]
-    // const headers = this.headersStatus
-    // const rows = this.rowsStatus
 
     switch (tableOption) {
       case "Status":
@@ -93,13 +93,23 @@ class Home extends React.Component {
   }
 
   render(props) {
-    return (
-      <div className='row mt-3'>
-        <div className='col-md-12'>
-          {this.getTable(this.props.option, this.props.updatePage)}
+    if (this.state.siteList.length == 0) {
+      return (
+        <div className='row mt-3'>
+          <div className='col-md-12'>
+            <Typography align="center" variant="h3">Loading...</Typography>
+          </div>
         </div>
-      </div>
-    )
+      )
+    } else {
+      return (
+        <div className='row mt-3'>
+          <div className='col-md-12'>
+            {this.getTable(this.props.option, this.props.updatePage)}
+          </div>
+        </div>
+      )
+    }
   }
 }
 

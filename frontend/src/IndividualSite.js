@@ -21,26 +21,34 @@ class IndividualSite extends React.Component {
         }
     }
     render() {
-        const siteID = [];
         const siteInfo = this.state.siteInfo;
-        console.log(siteInfo);
-        return <>
-            <div className="row mt-3">
-                <div className="col-md-4">
-                    <button style={{ backgroundColor: '#0d1821' }} className='btn text-white'>Refresh <RefreshIcon /></button>
+        if (siteInfo.length == 0) {
+            return (
+                <div className="row mt-3">
+                    <div className="col-md-12">
+                        <h1>Loading...</h1>
+                    </div>
                 </div>
-            </div>
-            <div className="row mt-3">
-                <div className="col-md-12">
-                    <h1>{siteInfo.siteName}</h1>
-                    <h5><a href={siteInfo.siteUrl} target="_blank" rel="noreferrer">{siteInfo.siteUrl}</a></h5>
-                    <h5 className="mt-3">Current Status: <span>OK</span></h5>
-                    <h5 className="mt-3">Last Checked: <span>NOW</span></h5>
-                    <h5 className="mt-3">SSL Certificate Expiration Date: {siteInfo.sslDate}</h5>
-                    { siteInfo.status ? <h5>Status: UP</h5> : <h5>Status: Down</h5> }
+            )
+        } else {
+            return <>
+                <div className="row mt-3">
+                    <div className="col-md-4">
+                        <button style={{ backgroundColor: '#0d1821' }} className='btn text-white'>Refresh <RefreshIcon /></button>
+                    </div>
                 </div>
-            </div>
-        </>
+                <div className="row mt-3">
+                    <div className="col-md-12">
+                        <h1>{siteInfo.siteName}</h1>
+                        <h5><a href={siteInfo.siteUrl} target="_blank" rel="noreferrer">{siteInfo.siteUrl}</a></h5>
+                        <h5 className="mt-3">Current Status: <span>OK</span></h5>
+                        <h5 className="mt-3">Last Checked: <span>NOW</span></h5>
+                        <h5 className="mt-3">SSL Certificate Expiration Date: {siteInfo.sslDate}</h5>
+                        { siteInfo.status ? <h5>Status: Running</h5> : <h5>Status: Down</h5> }
+                    </div>
+                </div>
+            </>
+        }
     }
 }
 
