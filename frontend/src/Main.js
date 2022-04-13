@@ -45,7 +45,7 @@ class Home extends React.Component {
           toReturn[0] = ['Name', "Site", "Expires On"];
           toReturn[1] = [];
           tableInfo.forEach(function(info) {
-            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [info.sslCertificate]]);
+            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], ["TBD"]]);
           });
           break;
 

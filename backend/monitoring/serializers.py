@@ -4,4 +4,4 @@ from .models import Site
 class SiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Site
-        fields = ('id', 'siteName', 'description', 'siteLink', 'sslCertificate')
+        fields = ('id', 'siteName', 'description', 'siteLink')

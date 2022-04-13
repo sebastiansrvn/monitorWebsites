@@ -43,7 +43,7 @@ class IndividualSite extends React.Component {
                         <h5><a href={siteInfo.siteUrl} target="_blank" rel="noreferrer">{siteInfo.siteUrl}</a></h5>
                         <h5 className="mt-3">Current Status: <span>OK</span></h5>
                         <h5 className="mt-3">Last Checked: <span>NOW</span></h5>
-                        <h5 className="mt-3">SSL Certificate Expiration Date: {siteInfo.sslDate}</h5>
+                        <h5 className="mt-3">SSL Certificate Expiration Date: TBD</h5>
                         { siteInfo.status ? <h5>Status: Running</h5> : <h5>Status: Down</h5> }
                     </div>
                 </div>

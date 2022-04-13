@@ -1,5 +1,3 @@
-from argparse import Action
-from telnetlib import STATUS
 import urllib
 from xmlrpc.client import ResponseError
 from django.shortcuts import render
@@ -8,31 +6,58 @@ from .serializers import SiteSerializer
 from rest_framework.decorators import action
 from .models import Site
 from rest_framework.response import Response
+from threading import Thread
+import ssl
+import OpenSSL
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
     queryset = Site.objects.all()
 
+
+    def get_ssl_expire_date(self, host, port):
+        # print(host)
+        host = "mussrvweb01.utep.edu"
+        cert = ssl.get_server_certificate((host, port))
+        x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
+        print(x509.get_notAfter())
+
     @action(detail=True)
     def get_all(self, request, pk=None):
-        sites = Site.objects.all()
-        allSites = []
-        for site in sites:
-            siteIsUp = False 
+
+        all_sites = []
+        def load_site(site):
+            site_is_up = False 
             try:
                 if (int(urllib.request.urlopen(site.siteLink).getcode()) == 200):
-                    siteIsUp = True
+                    site_is_up = True
             except:
-                siteIsUp = False
-            allSites.append({
+                site_is_up = False
+            
+            self.get_ssl_expire_date(site.siteLink, 443)
+            all_sites.append({
                 'id': site.id,
                 'siteName': site.siteName,
                 'siteLink': site.siteLink,
-                'sslCertificate': site.sslCertificate,
                 'description': site.description,
-                'siteIsUp': siteIsUp
+                'siteIsUp': site_is_up,
             })
-        return Response(allSites)
+
+
+        sites = Site.objects.all()
+        threads = [Thread(target=load_site, args = [site]) for site in sites]
+        for thread in threads:
+            thread.start()
+
+        for thread in threads:
+            thread.join()
+            # print(site.siteName)
+            # load_site(site)
+            # new_thread = Thread(target=load_site, args=[site])
+            # new_thread.start()
+            # new_thread.join()
+        return Response(all_sites)
+        
     @action(detail=True)
     def get_status(self, request, pk=None):
         site = Site.objects.get(pk=int(pk))
@@ -47,6 +72,5 @@ class SiteView(viewsets.ModelViewSet):
         return Response({
             'siteName': site.siteName,
             'siteUrl': siteUrl,
-            'sslDate': site.sslCertificate,
             'status': siteIsUp
             })
