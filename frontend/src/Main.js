@@ -8,12 +8,18 @@ class Home extends React.Component {
   constructor(props) {
     super(props)
     this.state = {
-      siteList: []
+      siteList: [],
+      currTime: 0
     }
   };
 
   componentDidMount() {
     this.refreshList()
+    setInterval(() => {
+      this.setState({
+        currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
+      })
+    }, 60 * 1000)
   }
 
   refreshList = async () => {
@@ -29,7 +35,8 @@ class Home extends React.Component {
     const toReturn = [[],[]];
     switch (table) {
       case "Status":
-        toReturn[0] = ['Name', "Site", "Status", "Date"];
+        const time = this.state.currTime + " mins"
+        toReturn[0] = ['Name', "Site", "Status", "Last Updated"];
         toReturn[1] = [];
         tableInfo.forEach(function(info) {
           var status = "Down"
@@ -38,7 +45,7 @@ class Home extends React.Component {
             status = "Running"
             bgColor = "bg-success"
           }
-          toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [status, bgColor], ["Now"]]);
+          toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [status, bgColor], [time]]);
         });
         break;
       case "SSL Certificates":

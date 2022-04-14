@@ -1,6 +1,4 @@
 import urllib
-from xmlrpc.client import ResponseError
-from django.shortcuts import render
 from rest_framework import viewsets
 from .serializers import SiteSerializer
 from rest_framework.decorators import action
@@ -34,7 +32,7 @@ class SiteView(viewsets.ModelViewSet):
             except:
                 site_is_up = False
             
-            self.get_ssl_expire_date(site.siteLink, 443)
+            # self.get_ssl_expire_date(site.siteLink, 443)
             all_sites.append({
                 'id': site.id,
                 'siteName': site.siteName,

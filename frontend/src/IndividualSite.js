@@ -3,10 +3,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
 
 class IndividualSite extends React.Component {
+    loadTime = new Date().getTime();
     constructor(props) {
         super(props);
         this.state = {
             siteInfo: [],
+            currTime: "0"
         }
     }
     setIndividualSiteInfo = (siteID) => {
@@ -19,6 +21,11 @@ class IndividualSite extends React.Component {
         if (this.props.siteID) {
             this.setIndividualSiteInfo(this.props.siteID);
         }
+        setInterval(() => {
+            this.setState({
+              currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
+            })
+          }, 60 * 1000)
     }
     render() {
         const siteInfo = this.state.siteInfo;
@@ -42,7 +49,7 @@ class IndividualSite extends React.Component {
                         <h1>{siteInfo.siteName}</h1>
                         <h5><a href={siteInfo.siteUrl} target="_blank" rel="noreferrer">{siteInfo.siteUrl}</a></h5>
                         <h5 className="mt-3">Current Status: <span>OK</span></h5>
-                        <h5 className="mt-3">Last Checked: <span>NOW</span></h5>
+                        <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
                         <h5 className="mt-3">SSL Certificate Expiration Date: TBD</h5>
                         { siteInfo.status ? <h5>Status: Running</h5> : <h5>Status: Down</h5> }
                     </div>

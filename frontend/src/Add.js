@@ -16,14 +16,6 @@ class Add extends React.Component {
     }
 
     handleSubmit = (e) => {
-        // console.log(this.state.newSite)
-        // axios.post("http://localhost:8000/api/sites/", {
-        //     siteName: "dacsx",
-        //     siteLink: "fd",
-        //     description: "fvcds"
-        // })
-        // .then(res => console.log(res))
-        console.log(this.state)
         axios.post("http://localhost:8000/api/sites/", this.state)
         .then(res => console.log(res))
         e.preventDefault();
