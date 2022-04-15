@@ -11,22 +11,26 @@ class IndividualSite extends React.Component {
             currTime: "0"
         }
     }
-    setIndividualSiteInfo = (siteID) => {
-        axios.get("/api/sites/" + siteID + "/get_status")
-        .then((res) => this.setState({ siteInfo: res.data }))
-        .catch((err) => console.log(err))
+    getSiteInfo = async (siteID) => {
+        this.loadTime = new Date().getTime();
+        const response = await axios.get("/api/sites/" + siteID + "/get_status");
+        this.setState({ siteInfo: response.data })
+        this.updateTime();
+        setInterval(this.updateTime, 1000 * 60)
+    }
+
+    updateTime = () => {
+        this.setState({
+            currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
+        })
     }
     
     componentDidMount() {
         if (this.props.siteID) {
-            this.setIndividualSiteInfo(this.props.siteID);
+            this.getSiteInfo(this.props.siteID);
         }
-        setInterval(() => {
-            this.setState({
-              currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
-            })
-          }, 60 * 1000)
     }
+
     render() {
         const siteInfo = this.state.siteInfo;
         if (siteInfo.length == 0) {
@@ -41,7 +45,7 @@ class IndividualSite extends React.Component {
             return <>
                 <div className="row mt-3">
                     <div className="col-md-4">
-                        <button style={{ backgroundColor: '#0d1821' }} className='btn text-white'>Refresh <RefreshIcon /></button>
+                        <button onClick={() => this.getSiteInfo(this.props.siteID)} className='btn btn-dark'>Refresh <RefreshIcon /></button>
                     </div>
                 </div>
                 <div className="row mt-3">
@@ -51,7 +55,7 @@ class IndividualSite extends React.Component {
                         <h5 className="mt-3">Current Status: <span>OK</span></h5>
                         <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
                         <h5 className="mt-3">SSL Certificate Expiration Date: TBD</h5>
-                        { siteInfo.status ? <h5>Status: Running</h5> : <h5>Status: Down</h5> }
+                        <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span class="text-danger">Down</span> }</h5>
                     </div>
                 </div>
             </>

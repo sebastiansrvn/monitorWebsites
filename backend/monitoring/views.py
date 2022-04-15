@@ -7,11 +7,21 @@ from rest_framework.response import Response
 from threading import Thread
 import ssl
 import OpenSSL
+from django.core.mail import send_mail;
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
     queryset = Site.objects.all()
 
+    @action(detail=True)
+    def get_alert(self, request, pk=None):
+        send_mail(
+            'Testing Email Subject',
+            'Testing Email Body',
+            'testing@example.com',
+            ['servinseb@hotmail.com'],
+            fail_silently=False,
+        )
 
     def get_ssl_expire_date(self, host, port):
         # print(host)

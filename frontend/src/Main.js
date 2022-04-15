@@ -1,10 +1,12 @@
-import { formControlLabelClasses, Typography } from '@mui/material';
+import { Typography } from '@mui/material';
 import React from 'react';
 import Table from './Table';
 import PublicIcon from '@mui/icons-material/Public';
 import axios from 'axios'
+import RefreshIcon from '@mui/icons-material/Refresh';
 
 class Home extends React.Component {
+  loadTime = new Date().getTime();
   constructor(props) {
     super(props)
     this.state = {
@@ -14,19 +16,23 @@ class Home extends React.Component {
   };
 
   componentDidMount() {
-    this.refreshList()
-    setInterval(() => {
-      this.setState({
-        currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
-      })
-    }, 60 * 1000)
+    this.refreshList();
   }
 
   refreshList = async () => {
+    this.loadTime = new Date().getTime();
     const response = await axios.get("/api/sites/0/get_all");
     this.setState({ siteList: response.data })
+    this.updateTime();
+    setInterval(this.updateTime, 60 * 1000);
   }
 
+  updateTime = () => {
+    this.setState({
+      currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
+    })
+  }
+  
   getTableInfo = (table) => {
     const tableInfo = this.state.siteList
     if (tableInfo.length < 1) {
@@ -36,7 +42,7 @@ class Home extends React.Component {
     switch (table) {
       case "Status":
         const time = this.state.currTime + " mins"
-        toReturn[0] = ['Name', "Site", "Status", "Last Updated"];
+        toReturn[0] = ['Name', "Site", "Status"];
         toReturn[1] = [];
         tableInfo.forEach(function(info) {
           var status = "Down"
@@ -45,7 +51,7 @@ class Home extends React.Component {
             status = "Running"
             bgColor = "bg-success"
           }
-          toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [status, bgColor], [time]]);
+          toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [status, bgColor]]);
         });
         break;
       case "SSL Certificates":
@@ -66,37 +72,18 @@ class Home extends React.Component {
       default:
           break;
         }
-      return toReturn;
-    
+      return toReturn;  
   }
 
   getTable = (tableOption, updatePage) => {
     const tableInfo = this.getTableInfo(tableOption)
     const headers = tableInfo[0]
     const rows = tableInfo[1]
-
-    switch (tableOption) {
-      case "Status":
-        return <>
-            <Typography align="center" variant="h3">Status<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
-            <Table updatePage={updatePage} headers={headers} rows={rows} />
-        </>
-
-      case "SSL Certificates":
-        return <>
-          <Typography align="center" variant="h3">SSL Certificates<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
-          <Table updatePage={updatePage} headers={headers} rows={rows} />
-        </>
-
-      case "Alerts":
-        return <>
-          <Typography align="center" variant="h3">Alerts<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
-          <Table updatePage={updatePage} headers={headers} rows={rows} />
-        </>
-
-      default:
-        return <h1>Not Found</h1>
-    }
+    return <>
+      <Typography align="center" variant="h3">{tableOption}<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
+      <h5 className='text-center'>Last Updated: {this.state.currTime} minutes ago. <button className='btn btn-dark' onClick={this.refreshList}>Refresh <RefreshIcon /></button></h5>
+      <Table updatePage={updatePage} headers={headers} rows={rows} />
+    </>;
   }
 
   render(props) {
@@ -112,6 +99,8 @@ class Home extends React.Component {
       return (
         <div className='row mt-3'>
           <div className='col-md-12'>
+            {/* <h5 className='text-center'>Last Updated: {this.state.currTime} minutes ago.</h5> */}
+            {/* <Table updatePage={this.props.updatePage} headers={headers} rows={rows} /> */}
             {this.getTable(this.props.option, this.props.updatePage)}
           </div>
         </div>
