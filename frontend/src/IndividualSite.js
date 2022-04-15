@@ -55,7 +55,7 @@ class IndividualSite extends React.Component {
                         <h5 className="mt-3">Current Status: <span>OK</span></h5>
                         <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
                         <h5 className="mt-3">SSL Certificate Expiration Date: TBD</h5>
-                        <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span class="text-danger">Down</span> }</h5>
+                        <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span className="text-danger">Down</span> }</h5>
                     </div>
                 </div>
             </>

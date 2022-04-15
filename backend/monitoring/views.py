@@ -8,23 +8,40 @@ from threading import Thread
 import ssl
 import OpenSSL
 from django.core.mail import send_mail;
+from django.conf import settings
+from slack_sdk import WebClient
+from slack_sdk.errors import SlackApiError
+import environ
+
+
+# send_mail(
+#     'Testing Email Svghbjubject',
+#     'Testing Email Body',
+#     settings.EMAIL_HOST_USER,
+#     [settings.RECIPIENT_ADDRESS],
+#     fail_silently=False,
+# )
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
     queryset = Site.objects.all()
+    env = environ.Env()
+    environ.Env.read_env()
+    client = WebClient(token=env('SLACK_AUTH'))
 
-    @action(detail=True)
-    def get_alert(self, request, pk=None):
-        send_mail(
-            'Testing Email Subject',
-            'Testing Email Body',
-            'testing@example.com',
-            ['servinseb@hotmail.com'],
-            fail_silently=False,
-        )
+    def send_alert(self, message):
+        try:
+            # Call the chat.postMessage method using the WebClient
+            result = self.client.chat_postMessage(
+                channel=self.env("SLACK_CHANNEL_ID"), 
+                text=message
+            )
+            print(result)
+
+        except SlackApiError as e:
+            print(e)
 
     def get_ssl_expire_date(self, host, port):
-        # print(host)
         host = "mussrvweb01.utep.edu"
         cert = ssl.get_server_certificate((host, port))
         x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
@@ -41,6 +58,7 @@ class SiteView(viewsets.ModelViewSet):
                     site_is_up = True
             except:
                 site_is_up = False
+                self.send_alert((site.siteName + " is down!"))
             
             # self.get_ssl_expire_date(site.siteLink, 443)
             all_sites.append({
@@ -59,11 +77,6 @@ class SiteView(viewsets.ModelViewSet):
 
         for thread in threads:
             thread.join()
-            # print(site.siteName)
-            # load_site(site)
-            # new_thread = Thread(target=load_site, args=[site])
-            # new_thread.start()
-            # new_thread.join()
         return Response(all_sites)
         
     @action(detail=True)
