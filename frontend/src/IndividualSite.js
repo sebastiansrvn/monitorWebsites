@@ -1,6 +1,10 @@
 import React from "react";
 import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
+import Modal from 'react-bootstrap/Modal';
+import Button from 'react-bootstrap/Button';
+import Edit from "./Edit";
+
 
 class IndividualSite extends React.Component {
     loadTime = new Date().getTime();
@@ -8,9 +12,30 @@ class IndividualSite extends React.Component {
         super(props);
         this.state = {
             siteInfo: [],
-            currTime: "0"
+            currTime: "0",
+            show: false,
+            editing: false
         }
     }
+
+    confirmationModal = (siteID, returnToStatus) => {
+        return (
+            <Modal centered show={this.state.show} onHide={this.handleClose}>
+            <Modal.Header closeButton>
+                <Modal.Title>Are you sure?</Modal.Title>
+            </Modal.Header>
+            <Modal.Footer>
+                <Button variant="secondary" onClick={this.handleClose}>
+                    Close
+                </Button>
+                <Button variant="danger" onClick={() => this.handleDelete(siteID, returnToStatus)}>
+                    Confirm
+                </Button>
+            </Modal.Footer>
+        </Modal>
+        );
+    }
+    
     getSiteInfo = async (siteID) => {
         this.loadTime = new Date().getTime();
         const response = await axios.get("/api/sites/" + siteID + "/get_status");
@@ -30,8 +55,26 @@ class IndividualSite extends React.Component {
             this.getSiteInfo(this.props.siteID);
         }
     }
+    
+    handleClose = () => {
+        this.setState({ show: false })
+    }
+
+    handleOpen = () => {
+        this.setState({ show: true })
+    }
+
+    handleDelete = async (siteID, updatePage) => {
+        await axios.get("/api/sites/" + siteID + "/delete_record");
+        updatePage("Status");
+    }
 
     render() {
+        if (this.state.editing) {
+            return (
+                <Edit />
+            )
+        } else {
         const siteInfo = this.state.siteInfo;
         if (siteInfo.length == 0) {
             return (
@@ -44,8 +87,14 @@ class IndividualSite extends React.Component {
         } else {
             return <>
                 <div className="row mt-3">
-                    <div className="col-md-4">
-                        <button onClick={() => this.getSiteInfo(this.props.siteID)} className='btn btn-dark'>Refresh <RefreshIcon /></button>
+                    <div className="col-md-3">
+                        <button onClick={() => this.getSiteInfo(this.props.siteID)} className='btn btn-dark w-100'>Refresh <RefreshIcon /></button>
+                    </div>
+                    <div className="col-md-3">
+                        <button className="btn btn-danger w-100" onClick={this.handleOpen}>Delete</button>
+                    </div>
+                    <div className="col-md-3">
+                        <button className="btn btn-warning w-100" onClick={() => this.setState({ editing: true })}>Edit</button>
                     </div>
                 </div>
                 <div className="row mt-3">
@@ -58,7 +107,9 @@ class IndividualSite extends React.Component {
                         <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span className="text-danger">Down</span> }</h5>
                     </div>
                 </div>
+                {this.confirmationModal(this.props.siteID, this.props.returnToStatus)}
             </>
+            }
         }
     }
 }

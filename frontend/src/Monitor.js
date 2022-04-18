@@ -28,9 +28,9 @@ class Monitor extends React.Component {
     if (option === "Status" || option === "SSL Certificates" || option === "Alerts") {
       return <Main option={option} updatePage={this.updatePage}/>;
     } else if (option === "Add") {
-      return <Add />;
+      return <Add returnToStatus={this.updatePage}/>;
     } else if (option === "Individual Site") {
-      return <IndividualSite siteID={this.state.individualSite}/>
+      return <IndividualSite returnToStatus={this.updatePage} siteID={this.state.individualSite}/>
     } else {
       return <h1>Not Found</h1>
     }

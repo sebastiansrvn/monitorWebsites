@@ -1,3 +1,4 @@
+from sre_constants import SUCCESS
 import urllib
 from rest_framework import viewsets
 from .serializers import SiteSerializer
@@ -7,20 +8,9 @@ from rest_framework.response import Response
 from threading import Thread
 import ssl
 import OpenSSL
-from django.core.mail import send_mail;
-from django.conf import settings
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 import environ
-
-
-# send_mail(
-#     'Testing Email Svghbjubject',
-#     'Testing Email Body',
-#     settings.EMAIL_HOST_USER,
-#     [settings.RECIPIENT_ADDRESS],
-#     fail_silently=False,
-# )
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
@@ -36,7 +26,6 @@ class SiteView(viewsets.ModelViewSet):
                 channel=self.env("SLACK_CHANNEL_ID"), 
                 text=message
             )
-            print(result)
 
         except SlackApiError as e:
             print(e)
@@ -95,3 +84,12 @@ class SiteView(viewsets.ModelViewSet):
             'siteUrl': siteUrl,
             'status': siteIsUp
             })
+        
+    @action(detail=True)
+    def delete_record(self, request, pk=None):
+        site = Site.objects.get(pk=int(pk))
+        site.delete()
+
+        return Response({
+            "deleted": "success"
+        })
