@@ -3,27 +3,37 @@ import React from 'react';
 class Edit extends React.Component {
     constructor(props) {
         super(props);
+        this.state = ({
+            siteName: props.siteName,
+            siteLink: props.siteLink,
+            description: "Empty"
+        })
+    }
+    
+    handleEdit = (e) => {
+        e.preventDefault();
+        this.props.handleEdit({ siteName: this.state.siteName, siteLink: this.state.siteLink, description: this.state.description });
+    }
+
+    handleChange = (e) => {
+        var { name, value } = e.target
+        this.setState({ [name]: value });
     }
 
     render() {
         return (
             <div className='row'>
-                <div className='col-md-12'>
-                    <form>
+                <div className='col-md-12 border bg-white rounder p-5 mt-5'>
+                    <form onSubmit={this.handleEdit}>
                         <div className="mb-3">
-                            <label for="exampleInputEmail1" className="form-label">Email address</label>
-                            <input type="email" className="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" />
-                            <div id="emailHelp" className="form-text">We'll never share your email with anyone else.</div>
+                            <label htmlFor="siteName" className="form-label"><h5>Site Name</h5></label>
+                            <input onChange={this.handleChange} type="text" value={this.state.siteName} name="siteName" className="form-control bg-light" id="siteName" />
                         </div>
                         <div className="mb-3">
-                            <label for="exampleInputPassword1" className="form-label">Password</label>
-                            <input type="password" className="form-control" id="exampleInputPassword1" />
+                            <label htmlFor="siteLink" className="form-label"><h5>Site URL</h5></label>
+                            <input onChange={this.handleChange} type="text" value={this.state.siteLink} name="siteLink" className="form-control bg-light" id="siteLink" aria-describedby="emailHelp" />
                         </div>
-                        <div className="mb-3 form-check">
-                            <input type="checkbox" className="form-check-input" id="exampleCheck1" />
-                            <label className="form-check-label" for="exampleCheck1">Check me out</label>
-                        </div>
-                        <button type="submit" className="btn btn-primary">Submit</button>
+                        <button type="submit" className="btn btn-warning">Edit</button>
                     </form>
                 </div>
             </div>

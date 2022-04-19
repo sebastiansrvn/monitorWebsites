@@ -1,4 +1,3 @@
-from sre_constants import SUCCESS
 import urllib
 from rest_framework import viewsets
 from .serializers import SiteSerializer
@@ -10,6 +9,7 @@ import ssl
 import OpenSSL
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
+from rest_framework import status
 import environ
 
 class SiteView(viewsets.ModelViewSet):
@@ -78,10 +78,10 @@ class SiteView(viewsets.ModelViewSet):
         except:
             siteIsUp = False
         
-        siteUrl = site.siteLink
+        siteLink = site.siteLink
         return Response({
             'siteName': site.siteName,
-            'siteUrl': siteUrl,
+            'siteLink': siteLink,
             'status': siteIsUp
             })
         
@@ -93,3 +93,14 @@ class SiteView(viewsets.ModelViewSet):
         return Response({
             "deleted": "success"
         })
+
+    @action(detail=True, methods=['POST'])
+    def update_record(self, request, pk=None):
+        site = Site.objects.get(pk=int(pk))
+        # data = request.data
+        serializer = SiteSerializer(site, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

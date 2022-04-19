@@ -56,6 +56,12 @@ class IndividualSite extends React.Component {
         }
     }
     
+    handleEdit = (args) => {
+        axios.post("http://localhost:8000/api/sites/" + this.props.siteID + "/update_record/", args)
+        .then()
+        this.props.returnToStatus("Status")
+    }
+
     handleClose = () => {
         this.setState({ show: false })
     }
@@ -70,12 +76,12 @@ class IndividualSite extends React.Component {
     }
 
     render() {
+        const siteInfo = this.state.siteInfo;
         if (this.state.editing) {
             return (
-                <Edit />
+                <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} handleEdit={this.handleEdit}/>
             )
         } else {
-        const siteInfo = this.state.siteInfo;
         if (siteInfo.length == 0) {
             return (
                 <div className="row mt-3">
@@ -100,7 +106,7 @@ class IndividualSite extends React.Component {
                 <div className="row mt-3">
                     <div className="col-md-12">
                         <h1>{siteInfo.siteName}</h1>
-                        <h5><a href={siteInfo.siteUrl} target="_blank" rel="noreferrer">{siteInfo.siteUrl}</a></h5>
+                        <h5><a href={siteInfo.siteLink} target="_blank" rel="noreferrer">{siteInfo.siteLink}</a></h5>
                         <h5 className="mt-3">Current Status: <span>OK</span></h5>
                         <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
                         <h5 className="mt-3">SSL Certificate Expiration Date: TBD</h5>
