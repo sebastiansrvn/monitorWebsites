@@ -5,12 +5,13 @@ from rest_framework.decorators import action
 from .models import Site
 from rest_framework.response import Response
 from threading import Thread
-import ssl
-import OpenSSL
 from slack_sdk import WebClient
 from slack_sdk.errors import SlackApiError
 from rest_framework import status
 import environ
+import ssl
+import socket
+from datetime import datetime
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
@@ -30,11 +31,29 @@ class SiteView(viewsets.ModelViewSet):
         except SlackApiError as e:
             print(e)
 
-    def get_ssl_expire_date(self, host, port):
-        host = "mussrvweb01.utep.edu"
-        cert = ssl.get_server_certificate((host, port))
-        x509 = OpenSSL.crypto.load_certificate(OpenSSL.crypto.FILETYPE_PEM, cert)
-        print(x509.get_notAfter())
+    def get_ssl_expire_date(self, host):
+        host = host.replace('https://', '')
+        host = host.replace('http://', '')
+        port = 443
+        ssl_date_fmt = r'%b %d %H:%M:%S %Y %Z'
+        try:
+            today = datetime.now()
+            context = ssl.create_default_context()
+            conn = context.wrap_socket(
+                socket.socket(socket.AF_INET),
+                server_hostname=host,
+            )
+            # 3 second timeout because Lambda has runtime limitations
+            conn.settimeout(3.0)
+            conn.connect((host, port))
+            ssl_info = conn.getpeercert()
+            # print(ssl_info)
+            # parse the string from the certificate into a Python datetime object
+            res = datetime.strptime(ssl_info['notAfter'], ssl_date_fmt)
+        except:
+            return "N/A"
+        else:    
+            return str((res - today).days) + " days"
 
     @action(detail=True)
     def get_all(self, request, pk=None):
@@ -49,13 +68,13 @@ class SiteView(viewsets.ModelViewSet):
                 site_is_up = False
                 self.send_alert((site.siteName + " is down!"))
             
-            # self.get_ssl_expire_date(site.siteLink, 443)
             all_sites.append({
                 'id': site.id,
                 'siteName': site.siteName,
                 'siteLink': site.siteLink,
                 'description': site.description,
                 'siteIsUp': site_is_up,
+                'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
             })
 
 
@@ -82,7 +101,8 @@ class SiteView(viewsets.ModelViewSet):
         return Response({
             'siteName': site.siteName,
             'siteLink': siteLink,
-            'status': siteIsUp
+            'status': siteIsUp,
+            'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
             })
         
     @action(detail=True)
