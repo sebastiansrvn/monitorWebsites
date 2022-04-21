@@ -6,7 +6,7 @@ class Edit extends React.Component {
         this.state = ({
             siteName: props.siteName,
             siteLink: props.siteLink,
-            description: "Empty"
+            description: props.description
         })
     }
     
@@ -31,7 +31,11 @@ class Edit extends React.Component {
                         </div>
                         <div className="mb-3">
                             <label htmlFor="siteLink" className="form-label"><h5>Site URL</h5></label>
-                            <input onChange={this.handleChange} type="text" value={this.state.siteLink} name="siteLink" className="form-control bg-light" id="siteLink" aria-describedby="emailHelp" />
+                            <input onChange={this.handleChange} type="url" value={this.state.siteLink} name="siteLink" className="form-control bg-light" id="siteLink" aria-describedby="emailHelp" />
+                        </div>
+                        <div className="mb-3">
+                            <label htmlFor="description" className="form-label"><h5>Description</h5></label>
+                            <textarea onChange={this.handleChange} value={this.state.description} name="description" className="form-control bg-light" id="description" aria-describedby="emailHelp" />
                         </div>
                         <button type="submit" className="btn btn-warning">Edit</button>
                     </form>

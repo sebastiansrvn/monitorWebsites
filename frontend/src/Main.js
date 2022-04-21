@@ -58,7 +58,13 @@ class Home extends React.Component {
           toReturn[0] = ['Name', "Site", "Expires On"];
           toReturn[1] = [];
           tableInfo.forEach(function(info) {
-            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [info.sslExpiresIn]]);
+            var bgColor = "bg-success"
+            if (info.sslExpiresIn  < 200) {
+              bgColor = "bg-danger"
+            } else if (info.sslExpiresIn < 300) {
+              bgColor = "bg-warning"
+            }
+            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [(info.sslExpiresIn + " days"), bgColor]]);
           });
           break;
 

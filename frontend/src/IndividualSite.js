@@ -41,7 +41,7 @@ class IndividualSite extends React.Component {
         const response = await axios.get("/api/sites/" + siteID + "/get_status");
         this.setState({ siteInfo: response.data })
         this.updateTime();
-        setInterval(this.updateTime, 1000 * 60)
+        setInterval(this.updateTime, 1000 * 60);
     }
 
     updateTime = () => {
@@ -77,45 +77,53 @@ class IndividualSite extends React.Component {
 
     render() {
         const siteInfo = this.state.siteInfo;
+        console.log(siteInfo)
         if (this.state.editing) {
             return (
-                <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} handleEdit={this.handleEdit}/>
+                <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>
             )
         } else {
-        if (siteInfo.length == 0) {
-            return (
-                <div className="row mt-3">
-                    <div className="col-md-12">
-                        <h1>Loading...</h1>
+            if (siteInfo.length == 0) {
+                return (
+                    <div className="row mt-3">
+                        <div className="col-md-12">
+                            <h1>Loading...</h1>
+                        </div>
                     </div>
-                </div>
-            )
-        } else {
-            return <>
-                <div className="row mt-3">
-                    <div className="col-md-3">
-                        <button onClick={() => this.getSiteInfo(this.props.siteID)} className='btn btn-dark w-100'>Refresh <RefreshIcon /></button>
+                )
+            } else {
+                var sslColor = "text-success"
+                if (siteInfo.sslExpiresIn  < 200) {
+                  sslColor = "text-danger"
+                } else if (siteInfo.sslExpiresIn < 300) {
+                  sslColor = "text-warning"
+                }
+                return <>
+                    <div className="row mt-3">
+                        <div className="col-md-3">
+                            <button onClick={() => this.getSiteInfo(this.props.siteID)} className='btn btn-dark w-100'>Refresh <RefreshIcon /></button>
+                        </div>
+                        <div className="col-md-3">
+                            <button className="btn btn-danger w-100" onClick={this.handleOpen}>Delete</button>
+                        </div>
+                        <div className="col-md-3">
+                            <button className="btn btn-warning w-100" onClick={() => this.setState({ editing: true })}>Edit</button>
+                        </div>
                     </div>
-                    <div className="col-md-3">
-                        <button className="btn btn-danger w-100" onClick={this.handleOpen}>Delete</button>
+                    <div className="row mt-3">
+                        <div className="col-md-12">
+                            <h1>{siteInfo.siteName}</h1>
+                            <h5><a href={siteInfo.siteLink} target="_blank" rel="noreferrer">{siteInfo.siteLink}</a></h5>
+                            <h5 className="mt-3">Current Status: <span>OK</span></h5>
+                            <h5 className="mt-3">Description: {siteInfo.description}</h5>
+                            <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
+                            <h5 className="mt-3">SSL Certificate Expiration Date: <span className={sslColor}>{siteInfo.sslExpiresIn} days</span></h5>
+                            <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span className="text-danger">Down</span> }</h5>
+                        </div>
                     </div>
-                    <div className="col-md-3">
-                        <button className="btn btn-warning w-100" onClick={() => this.setState({ editing: true })}>Edit</button>
-                    </div>
-                </div>
-                <div className="row mt-3">
-                    <div className="col-md-12">
-                        <h1>{siteInfo.siteName}</h1>
-                        <h5><a href={siteInfo.siteLink} target="_blank" rel="noreferrer">{siteInfo.siteLink}</a></h5>
-                        <h5 className="mt-3">Current Status: <span>OK</span></h5>
-                        <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
-                        <h5 className="mt-3">SSL Certificate Expiration Date: {siteInfo.sslExpiresIn}</h5>
-                        <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span className="text-danger">Down</span> }</h5>
-                    </div>
-                </div>
-                {this.confirmationModal(this.props.siteID, this.props.returnToStatus)}
-            </>
-            }
+                    {this.confirmationModal(this.props.siteID, this.props.returnToStatus)}
+                </>
+                }
         }
     }
 }

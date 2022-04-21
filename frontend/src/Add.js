@@ -32,7 +32,9 @@ class Add extends React.Component {
                             <label htmlFor='site-name' className='form-label'><h5>Name</h5></label>
                             <input type='text' name='siteName' onChange={this.handleChange} className='form-control bg-light' id='site-name' placeholder='Enter your site name.'/>
                             <label htmlFor='site-url' className='form-label mt-4'><h5>Site URL</h5></label>
-                            <input type='text' name='siteLink' onChange={this.handleChange} className='form-control bg-light' id='site-url' placeholder='https://example.com'/>
+                            <input type='url' name='siteLink' onChange={this.handleChange} className='form-control bg-light' id='site-url' placeholder='https://example.com'/>
+                            <label htmlFor='description' className='form-label mt-4'><h5>Description</h5></label>
+                            <textarea name='description' onChange={this.handleChange} className='form-control bg-light' id='site-url' placeholder='Enter your site description.'/>
                             <button style={{ backgroundColor: '#0d1821' }} className='btn text-white mt-3'>Add</button>
                         </form>
                     </div>

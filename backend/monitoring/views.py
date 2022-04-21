@@ -53,7 +53,7 @@ class SiteView(viewsets.ModelViewSet):
         except:
             return "N/A"
         else:    
-            return str((res - today).days) + " days"
+            return (res - today).days
 
     @action(detail=True)
     def get_all(self, request, pk=None):
@@ -68,13 +68,16 @@ class SiteView(viewsets.ModelViewSet):
                 site_is_up = False
                 self.send_alert((site.siteName + " is down!"))
             
+            sslExpirationDate = self.get_ssl_expire_date(site.siteLink)
+            # if sslExpirationDate < 200:
+                # self.send_alert(site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
             all_sites.append({
                 'id': site.id,
                 'siteName': site.siteName,
                 'siteLink': site.siteLink,
                 'description': site.description,
                 'siteIsUp': site_is_up,
-                'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
+                'sslExpiresIn': sslExpirationDate
             })
 
 
@@ -100,6 +103,7 @@ class SiteView(viewsets.ModelViewSet):
         siteLink = site.siteLink
         return Response({
             'siteName': site.siteName,
+            'description': site.description,
             'siteLink': siteLink,
             'status': siteIsUp,
             'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
