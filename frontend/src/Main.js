@@ -7,11 +7,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 
 class Home extends React.Component {
   loadTime = new Date().getTime();
+  timerInterval;
   constructor(props) {
     super(props)
     this.state = {
       siteList: [],
-      currTime: 0
+      currTime: 0,
     }
   };
 
@@ -19,18 +20,22 @@ class Home extends React.Component {
     this.refreshList();
   }
 
+  componentWillUnmount() {
+    clearInterval(this.timerInterval)
+  }
+
   refreshList = async () => {
     this.loadTime = new Date().getTime();
     const response = await axios.get("/api/sites/0/get_all");
     this.setState({ siteList: response.data })
     this.updateTime();
-    setInterval(this.updateTime, 60 * 1000);
+    this.timerInterval = setInterval(this.updateTime, 1000 * 60);
   }
 
   updateTime = () => {
     this.setState({
       currTime : Math.abs(Math.round(((new Date().getTime() - this.loadTime) / 1000) / 60))
-    })
+    });
   }
   
   getTableInfo = (table) => {
@@ -41,7 +46,6 @@ class Home extends React.Component {
     const toReturn = [[],[]];
     switch (table) {
       case "Status":
-        const time = this.state.currTime + " mins"
         toReturn[0] = ['Name', "Site", "Status"];
         toReturn[1] = [];
         tableInfo.forEach(function(info) {

@@ -8,6 +8,7 @@ import Edit from "./Edit";
 
 class IndividualSite extends React.Component {
     loadTime = new Date().getTime();
+    timerInterval;
     constructor(props) {
         super(props);
         this.state = {
@@ -41,7 +42,7 @@ class IndividualSite extends React.Component {
         const response = await axios.get("/api/sites/" + siteID + "/get_status");
         this.setState({ siteInfo: response.data })
         this.updateTime();
-        setInterval(this.updateTime, 1000 * 60);
+        this.timerInterval = setInterval(this.updateTime, 1000 * 60);
     }
 
     updateTime = () => {
@@ -54,6 +55,10 @@ class IndividualSite extends React.Component {
         if (this.props.siteID) {
             this.getSiteInfo(this.props.siteID);
         }
+    }
+    
+    componentWillUnmount() {
+        clearInterval(this.timerInterval);
     }
     
     handleEdit = (args) => {
@@ -77,7 +82,6 @@ class IndividualSite extends React.Component {
 
     render() {
         const siteInfo = this.state.siteInfo;
-        console.log(siteInfo)
         if (this.state.editing) {
             return (
                 <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>
