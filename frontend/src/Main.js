@@ -97,7 +97,7 @@ class Home extends React.Component {
   }
 
   render(props) {
-    if (this.state.siteList.length == 0) {
+    if (this.state.siteList.length === 0) {
       return (
         <div className='row mt-3'>
           <div className='col-md-12'>

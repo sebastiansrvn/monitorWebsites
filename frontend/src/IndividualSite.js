@@ -87,7 +87,7 @@ class IndividualSite extends React.Component {
                 <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>
             )
         } else {
-            if (siteInfo.length == 0) {
+            if (siteInfo.length === 0) {
                 return (
                     <div className="row mt-3">
                         <div className="col-md-12">
