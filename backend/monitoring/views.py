@@ -1,8 +1,10 @@
-import urllib
+import requests
 from rest_framework import viewsets
 from .serializers import SiteSerializer
 from rest_framework.decorators import action
 from .models import Site
+from django.core.mail import send_mail
+from django.conf import settings
 from rest_framework.response import Response
 from threading import Thread
 from slack_sdk import WebClient
@@ -20,9 +22,17 @@ class SiteView(viewsets.ModelViewSet):
     environ.Env.read_env()
     client = WebClient(token=env('SLACK_AUTH'))
 
-    def send_alert(self, message):
+    def send_alert_mail(self, subject, message):
+        send_mail(
+            subject,
+            message,
+            settings.EMAIL_HOST_USER,
+            [settings.RECIPIENT_ADDRESS],
+            fail_silently=False,
+        )
+    
+    def send_alert_slack(self, message):
         try:
-            # Call the chat.postMessage method using the WebClient
             result = self.client.chat_postMessage(
                 channel=self.env("SLACK_CHANNEL_ID"), 
                 text=message
@@ -58,20 +68,35 @@ class SiteView(viewsets.ModelViewSet):
     @action(detail=True)
     def get_all(self, request, pk=None):
 
-        all_sites = []
+        all_sites = {
+            'sites': [],
+            'alerts': []
+        }
         def load_site(site):
             site_is_up = False 
             try:
-                if (int(urllib.request.urlopen(site.siteLink).getcode()) == 200):
+                site_request = requests.head(site.siteLink, allow_redirects=True)
+                print(site_request.elapsed)
+                if site_request.status_code == 200:
                     site_is_up = True
             except:
+                pass
+
+            if not site_is_up:
                 site_is_up = False
-                self.send_alert((site.siteName + " is down!"))
+                all_sites['alerts'].append({ 'id': site.id, 'siteName': site.siteName, 'message': (site.siteName + " is down")})
+                # self.send_alert_slack((site.siteName + " is down!"))
+                # self.send_alert_mail((site.siteName + " is down!"), (site.siteName + " is down!"))
             
             sslExpirationDate = self.get_ssl_expire_date(site.siteLink)
-            # if sslExpirationDate < 200:
-                # self.send_alert(site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
-            all_sites.append({
+            try:
+                if sslExpirationDate < 200:
+                    all_sites['alerts'].append({ 'id': site.id, 'siteName': site.siteName, 'message': (site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")})
+                    # self.send_alert_mail((site.siteName + " s SSL certificate expires soon!"), (site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!"))
+                    # self.send_alert_slack(site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
+            except:
+                pass
+            all_sites['sites'].append({
                 'id': site.id,
                 'siteName': site.siteName,
                 'siteLink': site.siteLink,
@@ -95,7 +120,7 @@ class SiteView(viewsets.ModelViewSet):
         site = Site.objects.get(pk=int(pk))
         siteIsUp = False 
         try:
-            if (int(urllib.request.urlopen(site.siteLink).getcode()) == 200):
+            if requests.head(site.siteLink, allow_redirects=True).status_code == 200:
                 siteIsUp = True
         except:
             siteIsUp = False

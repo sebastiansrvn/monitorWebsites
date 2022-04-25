@@ -11,7 +11,7 @@ class Monitor extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      currentPage: 'Status',
+      currentPage: 'Alerts',
       individualSite: null
     }
   }

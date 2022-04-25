@@ -39,7 +39,7 @@ class IndividualSite extends React.Component {
     
     getSiteInfo = async (siteID) => {
         this.loadTime = new Date().getTime();
-        const response = await axios.get("/api/sites/" + siteID + "/get_status");
+        const response = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status");
         this.setState({ siteInfo: response.data })
         this.updateTime();
         this.timerInterval = setInterval(this.updateTime, 1000 * 60);
@@ -64,7 +64,7 @@ class IndividualSite extends React.Component {
     handleEdit = (args) => {
         axios.post("http://localhost:8000/api/sites/" + this.props.siteID + "/update_record/", args)
         .then()
-        this.props.returnToStatus("Status")
+        this.props.returnToStatus("Alerts")
     }
 
     handleClose = () => {
@@ -76,7 +76,7 @@ class IndividualSite extends React.Component {
     }
 
     handleDelete = async (siteID, updatePage) => {
-        await axios.get("/api/sites/" + siteID + "/delete_record");
+        await axios.get("http://localhost:8000/api/sites/" + siteID + "/delete_record");
         updatePage("Status");
     }
 

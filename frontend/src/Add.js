@@ -19,7 +19,7 @@ class Add extends React.Component {
     handleSubmit = (e) => {
         axios.post("http://localhost:8000/api/sites/", this.state)
         .then()
-        this.state.returnToStatus("Status")
+        this.state.returnToStatus("Alerts")
         e.preventDefault();
     }
 

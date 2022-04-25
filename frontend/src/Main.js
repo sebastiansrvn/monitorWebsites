@@ -12,6 +12,7 @@ class Home extends React.Component {
     super(props)
     this.state = {
       siteList: [],
+      siteAlerts: [],
       currTime: 0,
     }
   };
@@ -26,8 +27,9 @@ class Home extends React.Component {
 
   refreshList = async () => {
     this.loadTime = new Date().getTime();
-    const response = await axios.get("/api/sites/0/get_all");
-    this.setState({ siteList: response.data })
+    const response = await axios.get("http://localhost:8000/api/sites/0/get_all");
+    this.setState({ siteList: response.data.sites })
+    this.setState({ siteAlerts: response.data.alerts })
     this.updateTime();
     this.timerInterval = setInterval(this.updateTime, 1000 * 60);
   }
@@ -40,6 +42,7 @@ class Home extends React.Component {
   
   getTableInfo = (table) => {
     const tableInfo = this.state.siteList
+    const siteAlerts = this.state.siteAlerts
     if (tableInfo.length < 1) {
       return [[],[]];
     }
@@ -73,10 +76,10 @@ class Home extends React.Component {
           break;
 
       case "Alerts":
-          toReturn[0] = ['Name', "Site", "Notification"];
+          toReturn[0] = ['Name', "Notification"];
           toReturn[1] = [];
-          tableInfo.forEach(function(info) {
-            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], ["ALERT"]]);
+          siteAlerts.forEach(function(info) {
+            toReturn[1].push([[info.id], [info.siteName], [info.message]]);
           });
           break;
       default:
