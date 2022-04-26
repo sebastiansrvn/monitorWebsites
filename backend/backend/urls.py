@@ -20,6 +20,7 @@ from monitoring import views
 
 router = routers.DefaultRouter()
 router.register(r'sites', views.SiteView, 'site')
+router.register(r'responseTimes', views.ResponseTimeView, 'reponseTime')
 
 urlpatterns = [
     path('admin/', admin.site.urls),

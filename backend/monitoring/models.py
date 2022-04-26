@@ -7,6 +7,6 @@ class Site(models.Model):
     description = models.TextField()
     siteLink = models.CharField(max_length=120)
 
-class RequestTimes(models.Model):
+class ResponseTime(models.Model):
     siteID = models.IntegerField()
     responseTime = models.FloatField()

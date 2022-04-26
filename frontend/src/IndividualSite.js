@@ -13,9 +13,10 @@ class IndividualSite extends React.Component {
         super(props);
         this.state = {
             siteInfo: [],
+            responseTimes: [],
             currTime: "0",
             show: false,
-            editing: false
+            editing: false,
         }
     }
 
@@ -39,8 +40,10 @@ class IndividualSite extends React.Component {
     
     getSiteInfo = async (siteID) => {
         this.loadTime = new Date().getTime();
-        const response = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status");
-        this.setState({ siteInfo: response.data })
+        const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
+        const responseTimes = await axios.get("http://localhost:8000/api/responseTimes/" + siteID + "/get_response_times")
+        this.setState({ siteInfo: siteInfo.data })
+        this.setState({ responseTimes: responseTimes.data.responseTimes })
         this.updateTime();
         this.timerInterval = setInterval(this.updateTime, 1000 * 60);
     }
@@ -82,6 +85,9 @@ class IndividualSite extends React.Component {
 
     render() {
         const siteInfo = this.state.siteInfo;
+        const responseTimes = this.state.responseTimes
+
+        console.log(responseTimes)
         if (this.state.editing) {
             return (
                 <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>
