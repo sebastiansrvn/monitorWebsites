@@ -1,11 +1,11 @@
 import { Typography } from '@mui/material';
 import React from 'react';
-import Table from './Table';
+import Table from './components/Table';
 import PublicIcon from '@mui/icons-material/Public';
 import axios from 'axios'
 import RefreshIcon from '@mui/icons-material/Refresh';
 
-class Home extends React.Component {
+class Main extends React.Component {
   loadTime = new Date().getTime();
   timerInterval;
   constructor(props) {
@@ -123,4 +123,4 @@ class Home extends React.Component {
 }
 
 
-export default Home
+export default Main

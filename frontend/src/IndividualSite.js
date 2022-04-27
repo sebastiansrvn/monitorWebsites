@@ -3,7 +3,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import Edit from "./Edit";
+import Edit from "./components/Edit";
+import ResponseTimes from "./components/ResponseTimes";
 
 
 class IndividualSite extends React.Component {
@@ -86,8 +87,6 @@ class IndividualSite extends React.Component {
     render() {
         const siteInfo = this.state.siteInfo;
         const responseTimes = this.state.responseTimes
-
-        console.log(responseTimes)
         if (this.state.editing) {
             return (
                 <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>

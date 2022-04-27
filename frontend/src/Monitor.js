@@ -1,6 +1,6 @@
-import './App.css'
+import './css/App.css'
 import React from 'react';
-import NavBar from './NavBar.js';
+import NavBar from './components/NavBar'
 import Main from './Main';
 import Add from './Add';
 import IndividualSite from './IndividualSite'
