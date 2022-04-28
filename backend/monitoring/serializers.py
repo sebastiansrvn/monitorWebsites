@@ -10,4 +10,4 @@ class SiteSerializer(serializers.ModelSerializer):
 class ResponseTimeSerializer(serializers.ModelSerializer):
     class Meta:
         model = ResponseTime
-        fields = ('siteID', 'responseTime')
+        fields = ('siteID', 'responseTime', 'timeRecorded')

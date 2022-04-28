@@ -14,6 +14,7 @@ class IndividualSite extends React.Component {
         super(props);
         this.state = {
             siteInfo: [],
+            labels: [],
             responseTimes: [],
             currTime: "0",
             show: false,
@@ -44,6 +45,8 @@ class IndividualSite extends React.Component {
         const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
         const responseTimes = await axios.get("http://localhost:8000/api/responseTimes/" + siteID + "/get_response_times")
         this.setState({ siteInfo: siteInfo.data })
+        console.log(responseTimes.data)
+        this.setState({ labels: responseTimes.data.labels });
         this.setState({ responseTimes: responseTimes.data.responseTimes })
         this.updateTime();
         this.timerInterval = setInterval(this.updateTime, 1000 * 60);
@@ -86,7 +89,9 @@ class IndividualSite extends React.Component {
 
     render() {
         const siteInfo = this.state.siteInfo;
-        const responseTimes = this.state.responseTimes
+        const labels = this.state.labels;
+        const responseTimes = this.state.responseTimes;
+    
         if (this.state.editing) {
             return (
                 <Edit siteName={siteInfo.siteName} siteLink={siteInfo.siteLink} description={siteInfo.description} handleEdit={this.handleEdit}/>
@@ -128,6 +133,11 @@ class IndividualSite extends React.Component {
                             <h5 className="mt-3">Last Checked: {this.state.currTime} minutes ago</h5>
                             <h5 className="mt-3">SSL Certificate Expiration Date: <span className={sslColor}>{siteInfo.sslExpiresIn} days</span></h5>
                             <h5>Status: { siteInfo.status ? <span className="text-success">Running</span>: <span className="text-danger">Down</span> }</h5>
+                        </div>
+                    </div>
+                    <div className='row mt-3'>
+                        <div className='col-md-12'>
+                            <ResponseTimes labels={labels} responseTimes={responseTimes} />
                         </div>
                     </div>
                     {this.confirmationModal(this.props.siteID, this.props.returnToStatus)}

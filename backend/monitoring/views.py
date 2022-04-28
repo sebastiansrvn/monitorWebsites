@@ -2,6 +2,7 @@ import site
 from urllib import response
 import requests
 from rest_framework import viewsets
+from django.utils import timezone
 from .serializers import SiteSerializer, ResponseTimeSerializer
 from rest_framework.decorators import action
 from .models import Site, ResponseTime
@@ -84,7 +85,7 @@ class SiteView(viewsets.ModelViewSet):
                 if site_request.status_code == 200:
                     site_is_up = True
                     self.record_response_time(
-                        site.id, site_request.elapsed.total_seconds())
+                        site.id, site_request.elapsed.total_seconds(), timezone.now())
             except:
                 pass
 
@@ -168,11 +169,12 @@ class SiteView(viewsets.ModelViewSet):
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-    def record_response_time(self, site_id, response_time):
+    def record_response_time(self, site_id, response_time, time_recorded):
         try:
             ResponseTime.objects.create(
                 siteID=site_id,
-                responseTime=response_time
+                responseTime=response_time,
+                timeRecorded=time_recorded
             )
         except:
             print(
@@ -186,7 +188,9 @@ class ResponseTimeView(viewsets.ModelViewSet):
     @action(detail=True)
     def get_response_times(self, request, pk=None):
         site_response_times = ResponseTime.objects.filter(siteID=pk)
+        timesRecorded = []
         response_times = []
-        for site in site_response_times:
+        for site in site_response_times[:10]:
+            timesRecorded.append(site.timeRecorded)
             response_times.append(site.responseTime)
-        return Response({ "responseTimes": response_times })
+        return Response({ "responseTimes": response_times, "labels": timesRecorded })
