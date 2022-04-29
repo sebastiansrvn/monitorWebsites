@@ -1,8 +1,9 @@
 import site
+import time
 from urllib import response
 import requests
 from rest_framework import viewsets
-from django.utils import timezone
+from django.utils import timezone, dateformat
 from .serializers import SiteSerializer, ResponseTimeSerializer
 from rest_framework.decorators import action
 from .models import Site, ResponseTime
@@ -61,7 +62,6 @@ class SiteView(viewsets.ModelViewSet):
             conn.settimeout(3.0)
             conn.connect((host, port))
             ssl_info = conn.getpeercert()
-            # print(ssl_info)
             # parse the string from the certificate into a Python datetime object
             res = datetime.strptime(ssl_info['notAfter'], ssl_date_fmt)
         except:
@@ -85,7 +85,7 @@ class SiteView(viewsets.ModelViewSet):
                 if site_request.status_code == 200:
                     site_is_up = True
                     self.record_response_time(
-                        site.id, site_request.elapsed.total_seconds(), timezone.now())
+                        site.id, site_request.elapsed.total_seconds(), dateformat.format(timezone.localtime(), 'Y-m-d H:i:s'))
             except:
                 pass
 
@@ -191,6 +191,8 @@ class ResponseTimeView(viewsets.ModelViewSet):
         timesRecorded = []
         response_times = []
         for site in site_response_times[:10]:
-            timesRecorded.append(site.timeRecorded)
+            timeRecorded = timezone.make_naive(timezone.localtime(site.timeRecorded))
+            timeRecorded = datetime.strptime(str(timeRecorded), "%Y-%m-%d %H:%M:%S")
+            timesRecorded.append(str(timeRecorded.hour) + ":" + str(timeRecorded.minute )+ ":" + str(timeRecorded.second))
             response_times.append(site.responseTime)
         return Response({ "responseTimes": response_times, "labels": timesRecorded })
