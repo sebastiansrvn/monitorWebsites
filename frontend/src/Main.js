@@ -93,7 +93,7 @@ class Main extends React.Component {
     const headers = tableInfo[0]
     const rows = tableInfo[1]
     return <>
-      <Typography align="center" variant="h3">FROM MACBOOK PRO{tableOption}<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
+      <Typography align="center" variant="h3">{tableOption}<PublicIcon style={{ marginLeft: 10, verticalAlign: "middle", fontSize: 40 }}/></Typography>
       <h5 className='text-center'>Last Updated: {this.state.currTime} minutes ago. <button className='btn btn-dark' onClick={this.refreshList}>Refresh <RefreshIcon /></button></h5>
       <Table updatePage={updatePage} headers={headers} rows={rows} />
     </>;

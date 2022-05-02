@@ -29,10 +29,6 @@ class ResponseTimes extends React.Component {
             legend: {
               position: 'top'
             },
-            title: {
-              display: true,
-              text: 'Chart.js Line Chart',
-            },
           },
         };
         
