@@ -31,8 +31,7 @@ class ResponseTimes extends React.Component {
             },
           },
         };
-        
-        console.log(this.props.labels)
+
         const data = {
           labels: this.props.labels, 
           datasets: [

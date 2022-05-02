@@ -85,7 +85,7 @@ class SiteView(viewsets.ModelViewSet):
                 if site_request.status_code == 200:
                     site_is_up = True
                     self.record_response_time(
-                        site.id, site_request.elapsed.total_seconds(), dateformat.format(timezone.localtime(), 'Y-m-d H:i:s'))
+                        site.id, site_request.elapsed.total_seconds(), timezone.now())
             except:
                 pass
 
@@ -192,7 +192,7 @@ class ResponseTimeView(viewsets.ModelViewSet):
         response_times = []
         for site in site_response_times[:10]:
             timeRecorded = timezone.make_naive(timezone.localtime(site.timeRecorded))
-            timeRecorded = datetime.strptime(str(timeRecorded), "%Y-%m-%d %H:%M:%S")
+            timeRecorded = datetime.strptime(str(timeRecorded), "%Y-%m-%d %H:%M:%S.%f")
             timesRecorded.append(str(timeRecorded.hour) + ":" + str(timeRecorded.minute )+ ":" + str(timeRecorded.second))
             response_times.append(site.responseTime)
         return Response({ "responseTimes": response_times, "labels": timesRecorded })

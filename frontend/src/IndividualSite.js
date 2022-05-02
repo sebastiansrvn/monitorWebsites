@@ -45,7 +45,6 @@ class IndividualSite extends React.Component {
         const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
         const responseTimes = await axios.get("http://localhost:8000/api/responseTimes/" + siteID + "/get_response_times")
         this.setState({ siteInfo: siteInfo.data })
-        console.log(responseTimes.data)
         this.setState({ labels: responseTimes.data.labels });
         this.setState({ responseTimes: responseTimes.data.responseTimes })
         this.updateTime();
