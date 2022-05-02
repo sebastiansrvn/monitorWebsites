@@ -13,7 +13,7 @@ import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
 
 const pages = ['Alerts', 'Status', 'SSL Certificates', 'Add'];
-const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
+const settings = ["Register", "Login"];
 
 const ResponsiveAppBar = (props) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -34,6 +34,12 @@ const ResponsiveAppBar = (props) => {
     handleCloseNavMenu()
     updatePage(page, null);
   }
+
+  const updatePageAuth = (updatePage, page) => {
+    updatePage(page, null)
+    handleCloseUserMenu()
+  }
+
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
   };
@@ -130,7 +136,7 @@ const ResponsiveAppBar = (props) => {
               onClose={handleCloseUserMenu}
             >
               {settings.map((setting) => (
-                <MenuItem key={setting} onClick={handleCloseUserMenu}>
+                <MenuItem key={setting} onClick={() => updatePageAuth(props.updatePage, setting)}>
                   <Typography textAlign="center">{setting}</Typography>
                 </MenuItem>
               ))}

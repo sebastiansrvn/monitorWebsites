@@ -3,6 +3,8 @@ import React from 'react';
 import NavBar from './components/NavBar'
 import Main from './Main';
 import Add from './Add';
+import Login from './Login';
+import Register from './Register';
 import IndividualSite from './IndividualSite'
 
 
@@ -31,6 +33,10 @@ class Monitor extends React.Component {
       return <Add returnToStatus={this.updatePage}/>;
     } else if (option === "Individual Site") {
       return <IndividualSite returnToStatus={this.updatePage} siteID={this.state.individualSite}/>
+    } else if (option === "Login") {
+      return <Login />
+    } else if (option === "Register") {
+      return <Register />  
     } else {
       return <h1>Not Found</h1>
     }
