@@ -1,12 +1,12 @@
 import React from "react";
 
 class Register extends React.Component {
-    handleChange = () => {
+    handleChange = (e) => {
         
     }
     
-    handleSubmit = () => {
-
+    handleSubmit = (e) => {
+        e.preventDefault();
     }
     
     render() {

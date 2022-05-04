@@ -2,12 +2,12 @@ import React from  'react';
 
 class Login extends React.Component {
 
-    handleChange = () => {
+    handleChange = (e) => {
         
     }
 
-    handleSubmit = () => {
-
+    handleSubmit = (e) => {
+        e.preventDefault();
     }
     
     render() {
