@@ -27,7 +27,7 @@ class Main extends React.Component {
 
   refreshList = async () => {
     this.loadTime = new Date().getTime();
-    const response = await axios.get("http://localhost:8000/api/sites/0/get_all");
+    const response = await axios.get("http://localhost:8000/api/sites");
     this.setState({ siteList: response.data.sites })
     this.setState({ siteAlerts: response.data.alerts })
     this.updateTime();

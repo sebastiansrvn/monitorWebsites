@@ -1,6 +1,6 @@
 from urllib import response
 import requests
-from rest_framework import viewsets
+from rest_framework import viewsets, permissions
 from django.utils import timezone, dateformat
 from .serializers import SiteSerializer
 from rest_framework.decorators import action
@@ -21,10 +21,17 @@ from datetime import datetime
 
 class SiteView(viewsets.ModelViewSet):
     serializer_class = SiteSerializer
-    queryset = Site.objects.all()
+    # queryset = Site.objects.all()
     env = environ.Env()
     environ.Env.read_env()
     client = WebClient(token=env('SLACK_AUTH'))
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        # sites = self.get_all()
+        return self.request.user.sites.all()
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
     def send_alert_mail(self, subject, message):
         send_mail(
@@ -68,8 +75,106 @@ class SiteView(viewsets.ModelViewSet):
         else:
             return (res - today).days
 
+    # @action(detail=True)
+    # def get_all(self, request, pk=None):
+
+    #     all_sites = {
+    #         'sites': [],
+    #         'alerts': []
+    #     }
+
+    #     def load_site(site):
+    #         site_is_up = False
+    #         try:
+    #             site_request = requests.head(
+    #                 site.siteLink, allow_redirects=True)
+    #             if site_request.status_code == 200:
+    #                 site_is_up = True
+    #                 self.record_response_time(
+    #                     site.id, site_request.elapsed.total_seconds(), timezone.now())
+    #         except:
+    #             pass
+
+    #         if not site_is_up:
+    #             site_is_up = False
+    #             all_sites['alerts'].append({
+    #                 'id': site.id, 
+    #                 'siteName': site.siteName, 
+    #                 'message': (site.siteName + " is down")
+    #                 })
+    #             # self.send_alert_slack((site.siteName + " is down!"))
+    #             # self.send_alert_mail((site.siteName + " is down!"), (site.siteName + " is down!"))
+
+    #         sslExpirationDate = self.get_ssl_expire_date(site.siteLink)
+    #         try:
+    #             if sslExpirationDate < 200:
+    #                 all_sites['alerts'].append({
+    #                     'id': site.id, 
+    #                     'siteName': site.siteName, 
+    #                     'message': (
+    #                         site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
+    #                     })
+    #                 # self.send_alert_mail((site.siteName + " s SSL certificate expires soon!"), (site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!"))
+    #                 # self.send_alert_slack(site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
+    #         except:
+    #             pass
+    #         all_sites['sites'].append({
+    #             'id': site.id,
+    #             'siteName': site.siteName,
+    #             'siteLink': site.siteLink,
+    #             'description': site.description,
+    #             'siteIsUp': site_is_up,
+    #             'sslExpiresIn': sslExpirationDate
+    #         })
+
+    #     sites = Site.objects.all()
+    #     threads = [Thread(target=load_site, args=[site]) for site in sites]
+    #     for thread in threads:
+    #         thread.start()
+
+    #     for thread in threads:
+    #         thread.join()
+    #     return Response(all_sites)
+
     @action(detail=True)
-    def get_all(self, request, pk=None):
+    def get_status_single(self, request, pk=None):
+        site = Site.objects.get(pk=int(pk))
+        siteIsUp = False
+        try:
+            if requests.head(site.siteLink, allow_redirects=True).status_code == 200:
+                siteIsUp = True
+        except:
+            siteIsUp = False
+
+        siteLink = site.siteLink
+        return Response({
+            'siteName': site.siteName,
+            'description': site.description,
+            'siteLink': siteLink,
+            'status': siteIsUp,
+            'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
+        })
+
+    @action(detail=True)
+    def delete_record(self, request, pk=None):
+        site = Site.objects.get(pk=int(pk))
+        site.delete()
+
+        return Response({
+            "deleted": "success"
+        })
+
+    @action(detail=True, methods=['POST'])
+    def update_record(self, request, pk=None):
+        site = Site.objects.get(pk=int(pk))
+        serializer = SiteSerializer(site, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data)
+        else:
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def get_all_sites(self):
 
         all_sites = {
             'sites': [],
@@ -127,46 +232,8 @@ class SiteView(viewsets.ModelViewSet):
 
         for thread in threads:
             thread.join()
-        return Response(all_sites)
-
-    @action(detail=True)
-    def get_status_single(self, request, pk=None):
-        site = Site.objects.get(pk=int(pk))
-        siteIsUp = False
-        try:
-            if requests.head(site.siteLink, allow_redirects=True).status_code == 200:
-                siteIsUp = True
-        except:
-            siteIsUp = False
-
-        siteLink = site.siteLink
-        return Response({
-            'siteName': site.siteName,
-            'description': site.description,
-            'siteLink': siteLink,
-            'status': siteIsUp,
-            'sslExpiresIn': self.get_ssl_expire_date(site.siteLink)
-        })
-
-    @action(detail=True)
-    def delete_record(self, request, pk=None):
-        site = Site.objects.get(pk=int(pk))
-        site.delete()
-
-        return Response({
-            "deleted": "success"
-        })
-
-    @action(detail=True, methods=['POST'])
-    def update_record(self, request, pk=None):
-        site = Site.objects.get(pk=int(pk))
-        serializer = SiteSerializer(site, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
+        return all_sites
+        
     def record_response_time(self, site_id, response_time, time_recorded):
         try:
             ResponseTime.objects.create(
