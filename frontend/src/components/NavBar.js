@@ -11,9 +11,9 @@ import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import Tooltip from '@mui/material/Tooltip';
 import MenuItem from '@mui/material/MenuItem';
+import { Link } from "react-router-dom";
 
 const pages = ['Alerts', 'Status', 'SSL Certificates', 'Add'];
-const settings = ["Register", "Login"];
 
 const ResponsiveAppBar = (props) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -103,13 +103,14 @@ const ResponsiveAppBar = (props) => {
           </Typography>
           <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
             {pages.map((page) => (
-              <Button
-                key={page}
-                onClick={() => updatePage(props.updatePage, page)}
-                sx={{ my: 2, color: 'white', display: 'block' }}
-              >
-                {page}
-              </Button>
+              <Link to="/" key={page} className="text-decoration-none">
+                <Button
+                  onClick={() => updatePage(props.updatePage, page)}
+                  sx={{ my: 2, color: 'white', display: 'block' }}
+                >
+                  {page}
+                </Button>
+              </Link>
             ))}
           </Box>
 
@@ -135,11 +136,20 @@ const ResponsiveAppBar = (props) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-              {settings.map((setting) => (
-                <MenuItem key={setting} onClick={() => updatePageAuth(props.updatePage, setting)}>
-                  <Typography textAlign="center">{setting}</Typography>
-                </MenuItem>
-              ))}
+            <Link to="/login" className="text-decoration-none text-black">
+              <MenuItem key="Login">
+                <Typography textAlign="center">
+                  Login
+                </Typography>
+              </MenuItem>
+            </Link>
+            <Link to="/register" className="text-decoration-none text-black">
+              <MenuItem key="Register">
+                <Typography textAlign="center">
+                  Register
+                </Typography>
+              </MenuItem>
+            </Link>
             </Menu>
           </Box>
         </Toolbar>

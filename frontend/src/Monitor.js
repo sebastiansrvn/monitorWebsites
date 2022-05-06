@@ -1,11 +1,14 @@
 import './css/App.css'
 import React from 'react';
 import NavBar from './components/NavBar'
-import Main from './Main';
-import Add from './Add';
-import Login from './Login';
-import Register from './Register';
-import IndividualSite from './IndividualSite'
+import TableDisplay from './components/TableDisplay';
+import Add from './components/crud/Add';
+import Login from './components/account/Login';
+import Register from './components/account/Register';
+import IndividualSite from './components/IndividualSite'
+import PrivateRoute from './components/account/PrivateRoute';
+import { HashRouter as Router, Route, Routes, Redirect } from "react-router-dom";
+import loadUser from './components/actions/auth';
 
 
 class Monitor extends React.Component {
@@ -14,7 +17,9 @@ class Monitor extends React.Component {
     super(props);
     this.state = {
       currentPage: 'Alerts',
-      individualSite: null
+      individualSite: null,
+      user: null,
+      userType: null
     }
   }
 
@@ -28,32 +33,42 @@ class Monitor extends React.Component {
 
   getPageOption = (option) => {
     if (option === "Status" || option === "SSL Certificates" || option === "Alerts") {
-      return <Main option={option} updatePage={this.updatePage}/>;
+      return <TableDisplay option={option} updatePage={this.updatePage}/>;
     } else if (option === "Add") {
       return <Add returnToStatus={this.updatePage}/>;
     } else if (option === "Individual Site") {
       return <IndividualSite returnToStatus={this.updatePage} siteID={this.state.individualSite}/>
-    } else if (option === "Login") {
-      return <Login />
-    } else if (option === "Register") {
-      return <Register />  
     } else {
       return <h1>Not Found</h1>
     }
   }
+
   componentDidMount = () => {
     document.body.style.backgroundColor = "#FAFAFA"
-}
+    const userAuth = loadUser()
+    console.log(userAuth)
+  }
+
+  getUserData = () => {
+    
+  }
+
   render() {
     return (
-      <div className="App">
-        <NavBar updatePage={this.updatePage}/>
-        <div className='container'>
-          { this.getPageOption(this.state.currentPage) }
+      <Router>
+        <div className="App">
+          <NavBar updatePage={this.updatePage}/>
+          <div className='container'>
+            <Routes>
+              <Route exact path="/" element={ <PrivateRoute isLoading={false} isAuthenticated={false} currentPage={this.getPageOption(this.state.currentPage)} /> } />
+              <Route exact path="/register" element={ <Register/> } />
+              <Route exact path="/login" element={ <Login/> } />
+            </Routes>
+          </div>
+          <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossOrigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossOrigin="anonymous"></script>
         </div>
-        <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossOrigin="anonymous"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossOrigin="anonymous"></script>
-      </div>
+      </Router>
     );
   }
 }

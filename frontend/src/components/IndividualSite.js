@@ -3,8 +3,8 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 import axios from "axios";
 import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
-import Edit from "./components/Edit";
-import ResponseTimes from "./components/ResponseTimes";
+import Edit from "./crud/Edit";
+import ResponseTimes from "./ResponseTimes";
 
 
 class IndividualSite extends React.Component {

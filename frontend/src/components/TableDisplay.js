@@ -1,6 +1,6 @@
 import { Typography } from '@mui/material';
 import React from 'react';
-import Table from './components/Table';
+import Table from './Table';
 import PublicIcon from '@mui/icons-material/Public';
 import axios from 'axios'
 import RefreshIcon from '@mui/icons-material/Refresh';
