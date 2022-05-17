@@ -7,7 +7,6 @@ const PrivateRoute = ({ currentPage, isAuthenticated, isLoading }) => {
     } else if (!isAuthenticated) {
         return <Navigate to="/login" />
     } else {
-        console.log("GHBJKN");
         return currentPage
     }
 }

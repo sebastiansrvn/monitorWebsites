@@ -28,6 +28,40 @@ export const LoadUser = (token) => {
     return {returnObject, isAuthenticated};
 }
 
+export const Register = (username, email, password, isSubmitted) => {
+    const [returnObject, setReturnObject] = useState();
+    const [success, setSuccess] = useState();
+    // Headers
+    const config = {
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    };
+
+    const body = JSON.stringify({ username, email, password });
+
+    useEffect(() => {
+        if (!isSubmitted) {
+            return;
+        }
+        
+        const registerUser = async () => {
+            try {
+                const res = await axios.post("http://localhost:8000/api/auth/register", body, config);
+                setReturnObject(res);
+                setSuccess(true);
+            } catch (err) {
+                setReturnObject(err.response.data);
+                setSuccess(false);
+            }
+        }
+        
+        registerUser();
+    }, [isSubmitted]);
+        
+    return {returnObject, success};
+  };
+
 // export const LoadUser = (token) => {
 //     const [returnObject, setReturnObject] = useState();
 //     const [isAuthenticated, setIsAuthenticated] = useState();

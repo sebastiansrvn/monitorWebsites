@@ -16,13 +16,13 @@ function Monitor() {
   const [individualSite, setIndividualSite] = useState(null);
   const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState();
-  const loadUser = LoadUser();
   
+  const loadUser = LoadUser("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced");
   useEffect(() => {
     setUser(loadUser.returnObject);
     setIsAuthenticated(loadUser.isAuthenticated);
     document.body.style.backgroundColor = "#FAFAFA";
-  }, []);
+  });
   
   function updatePage(curr, site) {
     setCurrentPage(curr);
@@ -35,13 +35,16 @@ function Monitor() {
     } else if (option === "Add") {
       return <Add returnToStatus={updatePage}/>;
     } else if (option === "Individual Site") {
-      return <IndividualSite returnToStatus={updatePage} siteID={this.state.individualSite}/>
+      return <IndividualSite returnToStatus={updatePage} siteID={individualSite}/>
     } else {
       return <h1>Not Found</h1>
     }
   }
-  console.log(isAuthenticated)
   
+  if (user == undefined || isAuthenticated == undefined) {
+    return null;
+  }
+
   return (
     <Router>
       <div className="App">

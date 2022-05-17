@@ -5,6 +5,7 @@ import Modal from 'react-bootstrap/Modal';
 import Button from 'react-bootstrap/Button';
 import Edit from "./crud/Edit";
 import ResponseTimes from "./ResponseTimes";
+import { tokenConfig } from "./helper/TokenConfig";
 
 
 class IndividualSite extends React.Component {
@@ -42,7 +43,8 @@ class IndividualSite extends React.Component {
     
     getSiteInfo = async (siteID) => {
         this.loadTime = new Date().getTime();
-        const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
+        const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID, tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"));
+        // const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
         const responseTimes = await axios.get("http://localhost:8000/api/responseTimes/" + siteID + "/get_response_times")
         this.setState({ siteInfo: siteInfo.data })
         this.setState({ labels: responseTimes.data.labels });

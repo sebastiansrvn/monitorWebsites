@@ -1,5 +1,6 @@
 import React from 'react';
 import axios from 'axios'
+import { tokenConfig } from "../helper/TokenConfig";
 
 class Add extends React.Component {
     constructor(props) {
@@ -11,13 +12,14 @@ class Add extends React.Component {
             returnToStatus: props.returnToStatus,
         }
     }
+
     handleChange = (e) => {
         var { name, value } = e.target
         this.setState({ [name]: value });
     }
 
     handleSubmit = (e) => {
-        axios.post("http://localhost:8000/api/sites/", this.state)
+        axios.post("http://localhost:8000/api/sites/", this.state, tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"))
         .then()
         this.state.returnToStatus("Alerts")
         e.preventDefault();
