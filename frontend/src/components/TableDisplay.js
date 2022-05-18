@@ -4,6 +4,7 @@ import Table from './Table';
 import PublicIcon from '@mui/icons-material/Public';
 import axios from 'axios'
 import RefreshIcon from '@mui/icons-material/Refresh';
+import { tokenConfig } from "./helper/TokenConfig";
 
 class Main extends React.Component {
   loadTime = new Date().getTime();
@@ -27,9 +28,9 @@ class Main extends React.Component {
 
   refreshList = async () => {
     this.loadTime = new Date().getTime();
-    const response = await axios.get("http://localhost:8000/api/sites");
-    this.setState({ siteList: response.data.sites })
-    this.setState({ siteAlerts: response.data.alerts })
+    const sitesResponse = await axios.get("http://localhost:8000/api/sites", tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"));
+    this.setState({ siteList: sitesResponse.data })
+    // this.setState({ siteAlerts: response.data.alerts })
     this.updateTime();
     this.timerInterval = setInterval(this.updateTime, 1000 * 60);
   }
@@ -41,8 +42,9 @@ class Main extends React.Component {
   }
   
   getTableInfo = (table) => {
-    const tableInfo = this.state.siteList
-    const siteAlerts = this.state.siteAlerts
+    const tableInfo = this.state.siteList;
+    // const siteAlerts = this.state.siteAlerts;
+    const siteAlerts = [];
     if (tableInfo.length < 1) {
       return [[],[]];
     }
@@ -98,9 +100,9 @@ class Main extends React.Component {
       <Table updatePage={updatePage} headers={headers} rows={rows} />
     </>;
   }
-
+  
   render(props) {
-    if (this.state.siteList.length === 0) {
+    if (this.state.siteList == undefined || this.state.siteList.length === 0) {
       return (
         <div className='row mt-3'>
           <div className='col-md-12'>

@@ -28,8 +28,8 @@ class SiteView(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
-        # sites = self.get_all()
-        return self.request.user.sites.all()
+        sites = self.request.user.sites.all()
+        return sites
     def perform_create(self, serializer):
         serializer.save(owner=self.request.user)
 
