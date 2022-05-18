@@ -14,6 +14,8 @@ class Main extends React.Component {
     this.state = {
       siteList: [],
       siteAlerts: [],
+      siteStatus: {},
+      sitesSSL: {},
       currTime: 0,
     }
   };
@@ -28,9 +30,12 @@ class Main extends React.Component {
 
   refreshList = async () => {
     this.loadTime = new Date().getTime();
-    const sitesResponse = await axios.get("http://localhost:8000/api/sites", tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"));
+    const sitesResponse = await axios.get("http://localhost:8000/api/sites", tokenConfig(sessionStorage.getItem("authToken")));
+    const allSitesInfo = await axios.post("http://localhost:8000/api/sites/0/get_all_sites_info/", sitesResponse.data, tokenConfig(sessionStorage.getItem("authToken")));
     this.setState({ siteList: sitesResponse.data })
-    // this.setState({ siteAlerts: response.data.alerts })
+    this.setState({ siteStatus: allSitesInfo.data.status })
+    this.setState({ siteAlerts: allSitesInfo.data.alerts })
+    this.setState({ sitesSSL: allSitesInfo.data.ssl })
     this.updateTime();
     this.timerInterval = setInterval(this.updateTime, 1000 * 60);
   }
@@ -43,8 +48,9 @@ class Main extends React.Component {
   
   getTableInfo = (table) => {
     const tableInfo = this.state.siteList;
-    // const siteAlerts = this.state.siteAlerts;
-    const siteAlerts = [];
+    const alerts = this.state.siteAlerts;
+    const siteStatus = this.state.siteStatus;
+    const sitesSSL = this.state.sitesSSL;
     if (tableInfo.length < 1) {
       return [[],[]];
     }
@@ -56,7 +62,7 @@ class Main extends React.Component {
         tableInfo.forEach(function(info) {
           var status = "Down"
           var bgColor = "bg-danger"
-          if (info.siteIsUp) {
+          if (siteStatus[info.id]) {
             status = "Running"
             bgColor = "bg-success"
           }
@@ -68,20 +74,20 @@ class Main extends React.Component {
           toReturn[1] = [];
           tableInfo.forEach(function(info) {
             var bgColor = "bg-success"
-            if (info.sslExpiresIn  < 200) {
+            if (sitesSSL[info.id]  < 200) {
               bgColor = "bg-danger"
-            } else if (info.sslExpiresIn < 300) {
+            } else if (sitesSSL[info.id] < 300) {
               bgColor = "bg-warning"
             }
-            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [(info.sslExpiresIn + " days"), bgColor]]);
+            toReturn[1].push([[info.id], [info.siteName], [info.siteLink], [(sitesSSL[info.id] + " days"), bgColor]]);
           });
           break;
 
       case "Alerts":
           toReturn[0] = ['Name', "Notification"];
           toReturn[1] = [];
-          siteAlerts.forEach(function(info) {
-            toReturn[1].push([[info.id], [info.siteName], [info.message]]);
+          alerts.forEach(function(alert) {
+            toReturn[1].push([[alert.id], [alert.siteName], [alert.message]]);
           });
           break;
       default:
@@ -102,7 +108,7 @@ class Main extends React.Component {
   }
   
   render(props) {
-    if (this.state.siteList == undefined || this.state.siteList.length === 0) {
+    if (this.state.siteList == undefined) {
       return (
         <div className='row mt-3'>
           <div className='col-md-12'>
@@ -110,12 +116,18 @@ class Main extends React.Component {
           </div>
         </div>
       )
+    } else if (this.state.siteList.length === 0) {
+      return (
+        <div className='row mt-3'>
+          <div className='col-md-12'>
+          <Typography align="center" variant="h3">No Sites Available</Typography>
+          </div>
+        </div>
+      )
     } else {
       return (
         <div className='row mt-3'>
           <div className='col-md-12'>
-            {/* <h5 className='text-center'>Last Updated: {this.state.currTime} minutes ago.</h5> */}
-            {/* <Table updatePage={this.props.updatePage} headers={headers} rows={rows} /> */}
             {this.getTable(this.props.option, this.props.updatePage)}
           </div>
         </div>

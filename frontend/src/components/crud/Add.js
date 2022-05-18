@@ -19,7 +19,7 @@ class Add extends React.Component {
     }
 
     handleSubmit = (e) => {
-        axios.post("http://localhost:8000/api/sites/", this.state, tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"))
+        axios.post("http://localhost:8000/api/sites/", this.state, tokenConfig(sessionStorage.getItem("authToken")))
         .then()
         this.state.returnToStatus("Alerts")
         e.preventDefault();

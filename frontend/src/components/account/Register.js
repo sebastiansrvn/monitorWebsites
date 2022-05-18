@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Register as RegisterAuth } from  "../actions/auth";
+import { Navigate } from "react-router-dom";
 
 const Register = () => {
     const [username, setUsername] = useState("");
@@ -8,8 +9,7 @@ const Register = () => {
     const [passwordConfirmation, setPasswordConfirmation] = useState("");
     const [isSubmitted, setIsSubmitted] = useState(false);
 
-    const registeredUserReturn = RegisterAuth(username, email, password, isSubmitted);
-    console.log(registeredUserReturn.returnObject);
+    const { isRegistered, returnObject } = RegisterAuth(username, email, password, isSubmitted);
 
     const handleChange = (e) => {
         if (e.target.name === "username") {
@@ -21,7 +21,6 @@ const Register = () => {
         } else if (e.target.name === "passwordConfirmation") {
             setPasswordConfirmation(e.target.value);
         }
-
         setIsSubmitted(false);
     }
     
@@ -35,17 +34,21 @@ const Register = () => {
     }
 
     const getErrors = () => {
-        if (registeredUserReturn.success === false) {
+        if (isRegistered === false) {
             return (
                 <div className="alert alert-danger" role="alert">
-                    {registeredUserReturn.returnObject.username} <br />
-                    {registeredUserReturn.returnObject.email} <br />
-                    {registeredUserReturn.returnObject.password}
+                    {returnObject.username} <br />
+                    {returnObject.email} <br />
+                    {returnObject.password}
                 </div>
             );
         }
 
         return null;
+    }
+
+    if (isRegistered) {
+        return <Navigate to="/" />
     }
 
     return (
@@ -70,54 +73,5 @@ const Register = () => {
         </div>
     );
 }
-
-// class Register extends React.Component {
-//         constructor(props) {
-//         super(props);
-//         this.state = {
-//             username: "",
-//             email: "",
-//             password: "",
-//             passwordConfirmation: ""
-//         }
-//     }
-
-//     handleChange = (e) => {
-//         this.setState({ [e.target.name]: e.target.value });
-//     }
-    
-//     handleSubmit = (e) => {
-//         e.preventDefault();
-//         if (this.state.password === this.state.passwordConfirmation) {
-//             const registeredUser = RegisterAuth(this.state.username, this.state.email, this.state.password);
-//             console.log(registeredUser);
-//         } else {
-//             alert("Please make sure your passwords are equal.");
-//         }
-//     }
-    
-//     render() {
-//         return (
-//             <div className="container">
-//                 <div className='row'>
-//                     <div className='col-md-12 border bg-white rounded p-5 mt-5'>
-//                         <h1>Register</h1>
-//                         <form onSubmit={this.handleSubmit} className='mt-3'>
-//                             <label htmlFor='email' className='form-label'><h5>Email</h5></label>
-//                             <input type='text' name='email' onChange={this.handleChange} className='form-control bg-light' id='email' placeholder='Enter your email.'/>
-//                             <label htmlFor='username' className='form-label mt-4'><h5>Username</h5></label>
-//                             <input type='text' name='username' onChange={this.handleChange} className='form-control bg-light' id='username' placeholder='Enter your email.'/>
-//                             <label htmlFor='password' className='form-label mt-4'><h5>Password</h5></label>
-//                             <input type='password' name='password' onChange={this.handleChange} className='form-control bg-light' id='password' placeholder='Enter your password'/>
-//                             <label htmlFor='confirmPassword' className='form-label mt-4'><h5>Confirm Your Password</h5></label>
-//                             <input type='password' name='passwordConfirmation' onChange={this.handleChange} className='form-control bg-light' id='passwordConfirmation' placeholder='Confirm your password'/>
-//                             <button style={{ backgroundColor: '#0d1821' }} className='btn text-white mt-3'>Register</button>
-//                         </form>
-//                     </div>
-//                 </div>
-//             </div>
-//         );
-//     }
-// }
 
 export default Register;

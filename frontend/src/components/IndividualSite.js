@@ -43,8 +43,7 @@ class IndividualSite extends React.Component {
     
     getSiteInfo = async (siteID) => {
         this.loadTime = new Date().getTime();
-        const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID, tokenConfig("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced"));
-        // const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID + "/get_status_single");
+        const siteInfo = await axios.get("http://localhost:8000/api/sites/" + siteID, tokenConfig(sessionStorage.getItem("authToken")));
         const responseTimes = await axios.get("http://localhost:8000/api/responseTimes/" + siteID + "/get_response_times")
         this.setState({ siteInfo: siteInfo.data })
         this.setState({ labels: responseTimes.data.labels });
@@ -70,7 +69,7 @@ class IndividualSite extends React.Component {
     }
     
     handleEdit = (args) => {
-        axios.post("http://localhost:8000/api/sites/" + this.props.siteID + "/update_record/", args)
+        axios.put(`http://localhost:8000/api/sites/${this.props.siteID}/`, args, tokenConfig(sessionStorage.getItem("authToken")))
         .then()
         this.props.returnToStatus("Alerts")
     }
@@ -84,7 +83,7 @@ class IndividualSite extends React.Component {
     }
 
     handleDelete = async (siteID, updatePage) => {
-        await axios.get("http://localhost:8000/api/sites/" + siteID + "/delete_record");
+        await axios.delete(`http://localhost:8000/api/sites/${siteID}/`, tokenConfig(sessionStorage.getItem("authToken")));
         updatePage("Status");
     }
 

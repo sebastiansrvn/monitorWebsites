@@ -8,28 +8,42 @@ import Register from './components/account/Register';
 import IndividualSite from './components/IndividualSite'
 import PrivateRoute from './components/account/PrivateRoute';
 import { HashRouter as Router, Route, Routes, Redirect } from "react-router-dom";
-import { LoadUser } from './components/actions/auth';
+import { LoadUser, Logout } from './components/actions/auth';
 
 
-function Monitor() {
+const Monitor = () => {
   const [currentPage, setCurrentPage] = useState('Alerts');
   const [individualSite, setIndividualSite] = useState(null);
   const [user, setUser] = useState();
   const [isAuthenticated, setIsAuthenticated] = useState();
-  
-  const loadUser = LoadUser("7d82b5880fb5c96d7ad0336eb48efa96bfe769cd4780d4b3725fac5dbcc19ced");
+  const [isLogginOut, setIsloggingOut] = useState(null);
+
+  const isLoggedOut  = Logout(sessionStorage.getItem("authToken"), isLogginOut);
+  if (isLoggedOut) {
+    // setIsAuthenticated(false);
+  }
+
   useEffect(() => {
-    setUser(loadUser.returnObject);
-    setIsAuthenticated(loadUser.isAuthenticated);
     document.body.style.backgroundColor = "#FAFAFA";
   });
   
-  function updatePage(curr, site) {
+  const loadUserInfo = async () => {
+    const userInfo = await LoadUser(sessionStorage.getItem("authToken"));
+    setUser(userInfo.returnObject);
+    setIsAuthenticated(userInfo.isAuthenticated);
+  }
+  loadUserInfo();
+
+  const logOut = (submit) => {
+    setIsloggingOut(true);
+  }
+
+  const updatePage = (curr, site) => {
     setCurrentPage(curr);
     setIndividualSite(site);
   }
   
-  function getPageOption(option) {
+  const getPageOption = (option) => {
     if (option === "Status" || option === "SSL Certificates" || option === "Alerts") {
       return <TableDisplay option={option} updatePage={updatePage}/>;
     } else if (option === "Add") {
@@ -48,12 +62,12 @@ function Monitor() {
   return (
     <Router>
       <div className="App">
-        <NavBar updatePage={updatePage}/>
+        <NavBar updatePage={updatePage} logOut={logOut}/>
         <div className='container'>
           <Routes>
             <Route exact path="/" element={ <PrivateRoute isLoading={false} isAuthenticated={isAuthenticated} currentPage={getPageOption(currentPage)} /> } />
-            <Route exact path="/register" element={ <Register/> } />
-            <Route exact path="/login" element={ <Login/> } />
+            <Route exact path="/register" element={ <Register isAuthenticated={isAuthenticated} /> } />
+            <Route exact path="/login" element={ <Login isAuthenticated={isAuthenticated} /> } />
           </Routes>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossOrigin="anonymous"></script>
@@ -62,64 +76,5 @@ function Monitor() {
     </Router>
   );
 }
-
-// class Monitor extends React.Component {
-//   constructor(props) {
-//     super(props);
-//     this.state = {
-//       currentPage: 'Alerts',
-//       individualSite: null,
-//       user: null,
-//       userType: null
-//     }
-//   }
-
-  // Handles content when clicking navbar
-  // updatePage = (curr, site) => {
-  //   this.setState({
-  //     currentPage: curr,
-  //     individualSite: site
-  //   });
-  // }
-
-  // getPageOption = (option) => {
-  //   if (option === "Status" || option === "SSL Certificates" || option === "Alerts") {
-  //     return <TableDisplay option={option} updatePage={this.updatePage}/>;
-  //   } else if (option === "Add") {
-  //     return <Add returnToStatus={this.updatePage}/>;
-  //   } else if (option === "Individual Site") {
-  //     return <IndividualSite returnToStatus={this.updatePage} siteID={this.state.individualSite}/>
-  //   } else {
-  //     return <h1>Not Found</h1>
-  //   }
-  // }
-
-  // componentDidMount = () => {
-  //   document.body.style.backgroundColor = "#FAFAFA"
-  // }
-
-  // getUserData = () => {
-    
-  // }
-
-  // render() {
-  //   return (
-  //     <Router>
-  //       <div className="App">
-  //         <NavBar updatePage={this.updatePage}/>
-  //         <div className='container'>
-  //           <Routes>
-  //             <Route exact path="/" element={ <PrivateRoute isLoading={false} isAuthenticated={false} currentPage={this.getPageOption(this.state.currentPage)} /> } />
-  //             <Route exact path="/register" element={ <Register/> } />
-  //             <Route exact path="/login" element={ <Login/> } />
-  //           </Routes>
-  //         </div>
-  //         <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js" integrity="sha384-7+zCNj/IqJ95wo16oMtfsKbZ9ccEh31eOz1HGyDuCQ6wgnyJNSYdrPa03rtR1zdB" crossOrigin="anonymous"></script>
-  //         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.min.js" integrity="sha384-QJHtvGhmr9XOIpI6YVutG+2QOK9T+ZnN4kzFN1RtK3zEFEIsxhlmWl5/YESvpZ13" crossOrigin="anonymous"></script>
-  //       </div>
-  //     </Router>
-  //   );
-  // }
-// }
 
 export default Monitor;

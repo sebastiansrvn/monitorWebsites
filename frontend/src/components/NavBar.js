@@ -18,6 +18,7 @@ const pages = ['Alerts', 'Status', 'SSL Certificates', 'Add'];
 const ResponsiveAppBar = (props) => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [submit, setSubmit] = React.useState(false);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
@@ -44,6 +45,41 @@ const ResponsiveAppBar = (props) => {
     setAnchorElUser(null);
   };
 
+  const getLoginRegister = () => {
+    return (
+      <div>
+        <Link to="/login" className="text-decoration-none text-black">
+          <MenuItem key="Login">
+            <Typography textAlign="center">
+              Login
+            </Typography>
+          </MenuItem>
+        </Link>
+        <Link to="/register" className="text-decoration-none text-black">
+          <MenuItem key="Register">
+            <Typography textAlign="center">
+              Register
+            </Typography>
+          </MenuItem>
+        </Link>
+      </div>
+    )
+  }
+
+  const getLogout = () => {
+    return (
+      <MenuItem key="Login" onClick={logOut}>
+        <Typography textAlign="center">
+          Logout
+        </Typography>
+      </MenuItem>
+    );
+  }
+
+  const logOut = () => {
+    props.logOut(true);
+  }
+  
   return (
     <AppBar position="static" style={{ backgroundColor:  '#0d1821'}}>
       <Container maxWidth="xl">
@@ -136,20 +172,7 @@ const ResponsiveAppBar = (props) => {
               open={Boolean(anchorElUser)}
               onClose={handleCloseUserMenu}
             >
-            <Link to="/login" className="text-decoration-none text-black">
-              <MenuItem key="Login">
-                <Typography textAlign="center">
-                  Login
-                </Typography>
-              </MenuItem>
-            </Link>
-            <Link to="/register" className="text-decoration-none text-black">
-              <MenuItem key="Register">
-                <Typography textAlign="center">
-                  Register
-                </Typography>
-              </MenuItem>
-            </Link>
+            { sessionStorage.getItem("logged") ? getLogout() : getLoginRegister() }
             </Menu>
           </Box>
         </Toolbar>
