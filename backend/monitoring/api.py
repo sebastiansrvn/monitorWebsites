@@ -76,67 +76,6 @@ class SiteView(viewsets.ModelViewSet):
         else:
             return (res - today).days
 
-    # @action(detail=True)
-    # def get_all(self, request, pk=None):
-
-    #     all_sites = {
-    #         'sites': [],
-    #         'alerts': []
-    #     }
-
-    #     def load_site(site):
-    #         site_is_up = False
-    #         try:
-    #             site_request = requests.head(
-    #                 site.siteLink, allow_redirects=True)
-    #             if site_request.status_code == 200:
-    #                 site_is_up = True
-    #                 self.record_response_time(
-    #                     site.id, site_request.elapsed.total_seconds(), timezone.now())
-    #         except:
-    #             pass
-
-    #         if not site_is_up:
-    #             site_is_up = False
-    #             all_sites['alerts'].append({
-    #                 'id': site.id, 
-    #                 'siteName': site.siteName, 
-    #                 'message': (site.siteName + " is down")
-    #                 })
-    #             # self.send_alert_slack((site.siteName + " is down!"))
-    #             # self.send_alert_mail((site.siteName + " is down!"), (site.siteName + " is down!"))
-
-    #         sslExpirationDate = self.get_ssl_expire_date(site.siteLink)
-    #         try:
-    #             if sslExpirationDate < 200:
-    #                 all_sites['alerts'].append({
-    #                     'id': site.id, 
-    #                     'siteName': site.siteName, 
-    #                     'message': (
-    #                         site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
-    #                     })
-    #                 # self.send_alert_mail((site.siteName + " s SSL certificate expires soon!"), (site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!"))
-    #                 # self.send_alert_slack(site.siteName + "'s SSL certificate expires in " + str(sslExpirationDate) + " days!")
-    #         except:
-    #             pass
-    #         all_sites['sites'].append({
-    #             'id': site.id,
-    #             'siteName': site.siteName,
-    #             'siteLink': site.siteLink,
-    #             'description': site.description,
-    #             'siteIsUp': site_is_up,
-    #             'sslExpiresIn': sslExpirationDate
-    #         })
-
-    #     sites = Site.objects.all()
-    #     threads = [Thread(target=load_site, args=[site]) for site in sites]
-    #     for thread in threads:
-    #         thread.start()
-
-    #     for thread in threads:
-    #         thread.join()
-    #     return Response(all_sites)
-
     @action(detail=True)
     def get_status_single(self, request, pk=None):
         site = Site.objects.get(pk=int(pk))
@@ -180,20 +119,20 @@ class SiteView(viewsets.ModelViewSet):
                     'siteName': site['siteName'], 
                     'message': (site['siteName'] + " is down")
                     })
-                # self.send_alert_slack((site['siteName'] + " is down!"))
-                # self.send_alert_mail((site['siteName'] + " is down!"), (site['siteName'] + " is down!"))
+                self.send_alert_slack((site['siteName'] + " is down!"))
+                self.send_alert_mail((site['siteName'] + " is down!"), (site['siteName'] + " is down!"))
 
             ssl_expiration_date = self.get_ssl_expire_date(site['siteLink'])
             try:
-                if ssl_expiration_date < 200:
+                if ssl_expiration_date < 50:
                     all_sites_alerts.append({
                         'id': site['id'], 
                         'siteName': site['siteName'], 
                         'message': (
                             site['siteName'] + "'s SSL certificate expires in " + str(ssl_expiration_date) + " days!")
                         })
-                    # self.send_alert_mail((site['siteName'] + " s SSL certificate expires soon!"), (site['siteName'] + "'s SSL certificate expires in " + str(ssl_expiration_date) + " days!"))
-                    # self.send_alert_slack(site['siteName'] + "'s SSL certificate expires in " + str(ssl_expiration_date) + " days!")
+                    self.send_alert_mail((site['siteName'] + " s SSL certificate expires soon!"), (site['siteName'] + "'s SSL certificate expires in " + str(ssl_expiration_date) + " days!"))
+                    self.send_alert_slack(site['siteName'] + "'s SSL certificate expires in " + str(ssl_expiration_date) + " days!")
             except:
                 pass
             all_sites_ssl[site['id']] = ssl_expiration_date
